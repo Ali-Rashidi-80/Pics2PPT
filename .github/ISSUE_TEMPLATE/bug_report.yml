@@ -1,0 +1,62 @@
+name: Bug Report
+description: Report a reproducible bug in Pics2PPT
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please avoid attaching real personal photo folders — use anonymized sample structure instead.
+        [FAQ](../docs/FAQ.md) · [فارسی](../docs/FAQ.fa.md)
+
+  - type: input
+    id: version
+    attributes:
+      label: Pics2PPT version
+      placeholder: "1.3.0 or commit hash"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: How do you run Pics2PPT?
+      options:
+        - Portable EXE (dist/Pics2PPT.exe)
+        - From source (python main.py)
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include folder layout pattern (flat / grouped / project root)
+      placeholder: |
+        1. Select folder X
+        2. Press F5
+        3. See error in log
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: "Windows 11 64-bit"
+    validations:
+      required: true

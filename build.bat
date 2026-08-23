@@ -6,13 +6,17 @@ set "ROOT=%~dp0"
 cd /d "%ROOT%"
 
 echo ===================================================
-echo   SlideReport - Portable EXE
+echo   Pics2PPT - Portable EXE
 echo ===================================================
 echo.
 
-if not exist "slide_report_entry.py" (
-    echo [ERROR] slide_report_entry.py missing
+if not exist "pics2ppt_entry.py" (
+    echo [ERROR] pics2ppt_entry.py missing
     pause & exit /b 1
+)
+
+if not exist "icon.ico" (
+    echo [WARN] icon.ico missing — EXE will use default icon
 )
 
 python --version >nul 2>&1
@@ -54,28 +58,33 @@ if not defined UPX_DIR (
 if defined UPX_DIR ( echo UPX: !UPX_DIR! ) else ( echo [WARN] UPX unavailable - building without extra compression )
 
 echo [3/5] Cleaning old build...
-if exist "build\SlideReport.portable" rmdir /s /q "build\SlideReport.portable"
-if exist "dist\SlideReport_Portable.exe" del /f /q "dist\SlideReport_Portable.exe"
+if exist "build\Pics2PPT.portable" rmdir /s /q "build\Pics2PPT.portable"
+if exist "dist\Pics2PPT.exe" del /f /q "dist\Pics2PPT.exe"
+if exist "dist\Pics2PPT" rmdir /s /q "dist\Pics2PPT"
 
 echo [4/5] PyInstaller...
 set "UPX_ARG="
 if defined UPX_DIR set "UPX_ARG=--upx-dir \"!UPX_DIR!\""
 
-python -m PyInstaller --noconfirm --clean !UPX_ARG! SlideReport.portable.spec
+python -m PyInstaller --noconfirm --clean !UPX_ARG! Pics2PPT.portable.spec
 if errorlevel 1 (
     echo [ERROR] Build failed
     pause & exit /b 1
 )
 
-echo [5/5] Verify...
-if not exist "dist\SlideReport_Portable.exe" (
-    echo [ERROR] dist\SlideReport_Portable.exe not found
+echo [5/5] Verify single-file EXE...
+if not exist "dist\Pics2PPT.exe" (
+    echo [ERROR] dist\Pics2PPT.exe not found
+    pause & exit /b 1
+)
+for /d %%D in ("dist\*") do (
+    echo [ERROR] Expected one EXE only, found folder: %%D
     pause & exit /b 1
 )
 
-for %%A in ("dist\SlideReport_Portable.exe") do set "SZ=%%~zA"
+for %%A in ("dist\Pics2PPT.exe") do set "SZ=%%~zA"
 set /a "SZMB=!SZ!/1048576"
 echo.
-echo SUCCESS: dist\SlideReport_Portable.exe (~!SZMB! MB)
+echo SUCCESS: dist\Pics2PPT.exe  (single portable file, ~!SZMB! MB)
 echo.
 pause

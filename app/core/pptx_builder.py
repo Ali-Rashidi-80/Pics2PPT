@@ -184,15 +184,17 @@ def _caption_for(image_path: Path, settings: BuildSettings) -> str:
 
 def _add_detail_slide(prs, blank, image_path: Path, settings: BuildSettings, *, person_title: str, footer_text: str, logo_right, logo_left, slide_width, slide_height, return_slide=None):
     slide = prs.slides.add_slide(blank)
-    _draw_header(slide, person_title, settings, logo_right, logo_left, slide_width, subtitle=_caption_for(image_path, settings))
+    caption = _caption_for(image_path, settings)
+    _draw_header(slide, person_title, settings, logo_right, logo_left, slide_width)
     _draw_footer(slide, footer_text, settings, slide_width)
 
     margin = float(MARGIN_X)
     top = float(HEADER_BOTTOM) + margin * 0.5
     bottom = float(FOOTER_TOP) - margin
+    caption_band = 0.45 * 914400 if caption else 0
     box_left = margin
     box_w = float(slide_width) - 2 * margin
-    box_h = bottom - top
+    box_h = bottom - top - caption_band
 
     buffer = _compress(image_path, settings)
     w_px, h_px = get_image_size(image_path)
@@ -200,18 +202,21 @@ def _add_detail_slide(prs, blank, image_path: Path, settings: BuildSettings, *, 
     pic = slide.shapes.add_picture(buffer, left, top_e, width, height)
     _decorate_picture(pic, settings)
 
-    _add_textbox(
-        slide,
-        MARGIN_X,
-        Emu(int(float(FOOTER_TOP) - 0.45 * 914400)),
-        Emu(int(float(slide_width) - 2 * float(MARGIN_X))),
-        Emu(int(0.35 * 914400)),
-        "برای بازگشت از کلید Esc یا کلیک روی تصویر استفاده کنید",
-        settings,
-        size_pt=10,
-        color=MUTED_COLOR,
-        align=PP_ALIGN.CENTER,
-    )
+    if caption:
+        cap_top = top + box_h + 0.08 * 914400
+        _add_textbox(
+            slide,
+            Emu(int(box_left)),
+            Emu(int(cap_top)),
+            Emu(int(box_w)),
+            Emu(int(caption_band)),
+            caption,
+            settings,
+            size_pt=settings.caption_font_size,
+            color=MUTED_COLOR,
+            align=PP_ALIGN.CENTER,
+        )
+
     if return_slide is not None:
         _link_shape_to_slide(pic, return_slide)
     return slide

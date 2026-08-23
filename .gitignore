@@ -6,10 +6,13 @@ venv/
 env/
 *.egg-info/
 dist/
+dist_build/
 build/
 .idea/
 .vscode/
+.cursor/
 Output_PPTX/
+tools/upx/
 tools/upx_tmp/
 tools/upx.zip
 *.spec.bak

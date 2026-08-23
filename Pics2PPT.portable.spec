@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec — portable one-file EXE for SlideReport."""
+"""PyInstaller spec — portable one-file EXE for Pics2PPT."""
 
 from pathlib import Path
 
@@ -7,19 +7,25 @@ block_cipher = None
 root = Path(SPECPATH)
 
 a = Analysis(
-    [str(root / "slide_report_entry.py")],
+    [str(root / "pics2ppt_entry.py")],
     pathex=[str(root)],
     binaries=[],
-    datas=[],
+    datas=[
+        (str(root / "assets" / "app_icon_256.png"), "assets"),
+        (str(root / "assets" / "pics2ppt_logo.png"), "assets"),
+        (str(root / "icon.ico"), "."),
+    ],
     hiddenimports=[
         "app",
         "app.bootstrap",
+        "app.resources",
         "app.core",
         "app.core.scanner",
         "app.core.pptx_builder",
         "app.core.image_processor",
         "app.core.worker",
         "app.core.models",
+        "app.core.output_paths",
         "app.services",
         "app.services.settings",
         "app.ui",
@@ -28,7 +34,7 @@ a = Analysis(
         "app.ui.fonts",
         "app.ui.layout_direction",
         "app.ui.widgets",
-        "app.ui.help_content",
+        "app.ui.help_panel",
         "app.ui.drop_line_edit",
         "app.ui.pages.home_page",
         "app.ui.pages.settings_page",
@@ -61,7 +67,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="SlideReport_Portable",
+    name="Pics2PPT",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -69,7 +75,7 @@ exe = EXE(
     upx_exclude=[
         "python*.dll",
         "Qt6*.dll",
-        "slide_report_entry.py",
+        "pics2ppt_entry.py",
     ],
     runtime_tmpdir=None,
     console=False,

@@ -2,27 +2,29 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
-    QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QLineEdit,
     QPushButton,
-    QScrollArea,
+    QSizePolicy,
     QSpinBox,
     QVBoxLayout,
     QWidget,
+    QLabel,
 )
 
 from app.ui.theme import THEME_LABELS
-from app.ui.widgets import FormComboBox, make_page_header
+from app.ui.widgets import FormComboBox, make_page_header, make_stacked_field, make_tip_card
+from app.ui.layout_direction import ALIGN_START, mark_path_field
+from app.ui.scroll_area import RtlScrollArea, make_page_layout
 
 
 class SettingsPage(QWidget):
     def __init__(self, parent_window) -> None:
         super().__init__()
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.parent_window = parent_window
         self._building = False
         self._build_ui()
@@ -31,70 +33,95 @@ class SettingsPage(QWidget):
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll = RtlScrollArea()
         body = QWidget()
-        root = QVBoxLayout(body)
-        root.setContentsMargins(24, 20, 24, 24)
-        root.setSpacing(14)
-        root.addWidget(make_page_header("تنظیمات", "ظاهر برنامه، کیفیت تصویر و رفتار ساخت پاورپوینت را اینجا تنظیم کنید."))
+        root = make_page_layout(body)
+        root.addWidget(
+            make_page_header(
+                "تنظیمات",
+                "ظاهر برنامه، کیفیت تصویر و رفتار ساخت پاورپوینت را اینجا تنظیم کنید. "
+                "تغییرات به‌صورت خودکار ذخیره می‌شوند.",
+            )
+        )
+
+        root.addWidget(
+            make_tip_card("تم و اندازهٔ متن را می‌توانید متناسب با محیط کار (روشن یا تیره) تغییر دهید.")
+        )
 
         appearance = QGroupBox("ظاهر برنامه")
-        af = QFormLayout(appearance)
-        af.setLabelAlignment(Qt.AlignRight)
+        ap_layout = QVBoxLayout(appearance)
+        ap_layout.setSpacing(10)
+        ap_hint = QLabel("تم تیره برای کار طولانی و تم روشن برای چاپ و نمایش بهتر متن مناسب است.")
+        ap_hint.setObjectName("GroupHint")
+        ap_hint.setWordWrap(True)
+        ap_hint.setAlignment(ALIGN_START)
+        ap_layout.addWidget(ap_hint)
         self.theme_combo = FormComboBox()
         self.theme_combo.set_items([(k, v) for k, v in THEME_LABELS.items()])
-        self.theme_combo.setToolTip("تم تیره فیروزه‌ای، تیره ارغوانی یا روشن")
         self.font_combo = FormComboBox()
         self.font_combo.set_items([
             ("small", "کوچک"),
             ("medium", "متوسط"),
             ("large", "بزرگ"),
         ])
-        af.addRow("تم:", self.theme_combo)
-        af.addRow("اندازهٔ متن:", self.font_combo)
+        ap_layout.addWidget(make_stacked_field("تم:", self.theme_combo))
+        ap_layout.addWidget(make_stacked_field("اندازهٔ متن:", self.font_combo))
         root.addWidget(appearance)
 
         output = QGroupBox("خروجی")
-        of = QFormLayout(output)
-        of.setLabelAlignment(Qt.AlignRight)
+        out_layout = QVBoxLayout(output)
+        out_layout.setSpacing(10)
+        out_hint = QLabel("فایل‌های PPTX همیشه در زیرپوشه‌ای داخل همان مسیر ورودی ذخیره می‌شوند.")
+        out_hint.setObjectName("GroupHint")
+        out_hint.setWordWrap(True)
+        out_hint.setAlignment(ALIGN_START)
+        out_layout.addWidget(out_hint)
         self.output_name = QLineEdit()
         self.output_name.setPlaceholderText("Output_PPTX")
-        self.output_name.setToolTip("نام پوشهٔ خروجی داخل همان مسیر ورودی")
+        mark_path_field(self.output_name)
         self.open_when_done = QCheckBox("پس از اتمام، پوشهٔ خروجی باز شود")
-        of.addRow("نام پوشه خروجی:", self.output_name)
-        of.addRow("", self.open_when_done)
+        out_layout.addWidget(make_stacked_field("نام پوشه خروجی:", self.output_name))
+        out_layout.addWidget(self.open_when_done)
         root.addWidget(output)
 
         quality = QGroupBox("کیفیت تصویر")
-        qf = QFormLayout(quality)
-        qf.setLabelAlignment(Qt.AlignRight)
+        q_layout = QVBoxLayout(quality)
+        q_layout.setSpacing(10)
+        q_hint = QLabel("مقادیر پیشنهادی: JPEG ۷۵ و حداکثر ۱۲۰۰ پیکسل — تعادل مناسب حجم و کیفیت.")
+        q_hint.setObjectName("GroupHint")
+        q_hint.setWordWrap(True)
+        q_hint.setAlignment(ALIGN_START)
+        q_layout.addWidget(q_hint)
         self.jpeg_quality = QSpinBox()
         self.jpeg_quality.setRange(40, 95)
-        self.jpeg_quality.setToolTip("کیفیت فشرده‌سازی JPEG (پیشنهاد: ۷۵)")
         self.max_dim = QSpinBox()
         self.max_dim.setRange(600, 2400)
         self.max_dim.setSingleStep(100)
-        self.max_dim.setToolTip("حداکثر ابعاد تصویر قبل از درج در PPTX")
-        qf.addRow("کیفیت JPEG:", self.jpeg_quality)
-        qf.addRow("حداکثر پیکسل:", self.max_dim)
+        q_layout.addWidget(make_stacked_field("کیفیت JPEG:", self.jpeg_quality))
+        q_layout.addWidget(make_stacked_field("حداکثر پیکسل:", self.max_dim))
         root.addWidget(quality)
 
         slide = QGroupBox("اسلاید")
-        sf = QFormLayout(slide)
-        sf.setLabelAlignment(Qt.AlignRight)
+        s_layout = QVBoxLayout(slide)
+        s_layout.setSpacing(10)
         self.images_per = QSpinBox()
         self.images_per.setRange(1, 4)
-        self.images_per.setToolTip("تعداد تصویر در هر اسلید (شبکه ۲×۲ = ۴)")
         self.font_name = QLineEdit()
         self.font_name.setPlaceholderText("B Nazanin")
-        sf.addRow("تصویر در هر اسلاید:", self.images_per)
-        sf.addRow("فونت:", self.font_name)
+        mark_path_field(self.font_name)
+        s_layout.addWidget(make_stacked_field("تصویر در هر اسلاید:", self.images_per))
+        s_layout.addWidget(make_stacked_field("فونت:", self.font_name))
         root.addWidget(slide)
 
         features = QGroupBox("قابلیت‌های پاورپوینت")
-        fl = QVBoxLayout(features)
+        f_layout = QVBoxLayout(features)
+        f_hint = QLabel("بزرگنمایی کلیک/هاور اسلاید جزئیات جداگانه برای هر تصویر می‌سازد.")
+        f_hint.setObjectName("GroupHint")
+        f_hint.setWordWrap(True)
+        f_hint.setAlignment(ALIGN_START)
+        f_layout.addWidget(f_hint)
+        fl = QVBoxLayout()
+        fl.setSpacing(6)
         self.section_div = QCheckBox("اسلاید جداکنندهٔ بخش‌ها")
         self.zoom_click = QCheckBox("بزرگنمایی با کلیک (اسلاید جزئیات)")
         self.zoom_hover = QCheckBox("بزرگنمایی با هاور ماوس")
@@ -110,6 +137,7 @@ class SettingsPage(QWidget):
             self.caption_name,
         ):
             fl.addWidget(w)
+        f_layout.addLayout(fl)
         root.addWidget(features)
 
         btns = QHBoxLayout()
@@ -119,7 +147,6 @@ class SettingsPage(QWidget):
         btns.addWidget(reset)
         btns.addStretch()
         root.addLayout(btns)
-        root.addStretch()
 
         scroll.setWidget(body)
         outer.addWidget(scroll)
@@ -170,18 +197,17 @@ class SettingsPage(QWidget):
         self._sync_hover_enabled()
         self._building = False
 
-    def _sync_hover_enabled(self) -> None:
-        enabled = self.zoom_click.isChecked()
-        self.zoom_hover.setEnabled(enabled)
-        if not enabled and self.zoom_hover.isChecked():
-            self.zoom_hover.setChecked(False)
-
-    def _changed(self) -> None:
-        if self._building:
-            return
+    def commit(self) -> None:
+        """Write current widget values to settings (used on close)."""
         s = self.parent_window.settings
-        s.set("theme", self.theme_combo.current_key())
-        s.set("font_size", self.font_combo.current_key())
+        theme = self.theme_combo.current_key() or "dark_cyan"
+        font_size = self.font_combo.current_key() or "medium"
+        if theme not in {"dark_cyan", "dark_purple", "light"}:
+            theme = "dark_cyan"
+        if font_size not in {"small", "medium", "large"}:
+            font_size = "medium"
+        s.set("theme", theme)
+        s.set("font_size", font_size)
         s.set("output_folder_name", self.output_name.text().strip() or "Output_PPTX")
         s.set("open_output_when_done", self.open_when_done.isChecked())
         s.set("jpeg_quality", self.jpeg_quality.value())
@@ -192,14 +218,25 @@ class SettingsPage(QWidget):
         s.set("enable_image_zoom", self.zoom_click.isChecked())
         hover = self.zoom_hover.isChecked() and self.zoom_click.isChecked()
         s.set("enable_hover_zoom", hover)
-        if not self.zoom_click.isChecked() and self.zoom_hover.isChecked():
-            self._building = True
-            self.zoom_hover.setChecked(False)
-            self._building = False
         s.set("enable_image_shadow", self.image_shadow.isChecked())
         s.set("enable_image_border", self.image_border.isChecked())
         s.set("caption_from_filename", self.caption_name.isChecked())
         s.save()
+
+    def _sync_hover_enabled(self) -> None:
+        enabled = self.zoom_click.isChecked()
+        self.zoom_hover.setEnabled(enabled)
+        if not enabled and self.zoom_hover.isChecked():
+            self.zoom_hover.setChecked(False)
+
+    def _changed(self) -> None:
+        if self._building:
+            return
+        if not self.zoom_click.isChecked() and self.zoom_hover.isChecked():
+            self._building = True
+            self.zoom_hover.setChecked(False)
+            self._building = False
+        self.commit()
         self._sync_hover_enabled()
         self.parent_window.apply_preferences()
 

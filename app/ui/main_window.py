@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QKeySequence, QPixmap, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -17,9 +17,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app import APP_NAME, APP_TAGLINE_FA, __version__
+from app.resources import logo_png
 from app.services.settings import SettingsManager
 from app.ui.fonts import configure_app_typography
-from app.ui.layout_direction import apply_layout_direction
+from app.ui.layout_direction import ALIGN_START, apply_layout_direction
 from app.ui.pages.about_page import AboutPage
 from app.ui.pages.home_page import HomePage
 from app.ui.pages.settings_page import SettingsPage
@@ -28,18 +30,18 @@ from app.ui.theme import build_stylesheet
 
 class MainWindow(QMainWindow):
     NAV_ITEMS = [
-        ("ساخت گزارش", 0),
-        ("تنظیمات", 1),
-        ("درباره و آموزش", 2),
+        ("◈  ساخت گزارش", 0),
+        ("◈  تنظیمات", 1),
+        ("◈  درباره و آموزش", 2),
     ]
 
     def __init__(self) -> None:
         super().__init__()
         self.settings = SettingsManager()
         self._geometry_restored = False
-        self.setWindowTitle("SlideReport — ساخت خودکار گزارش پاورپوینت")
-        self.setMinimumSize(860, 680)
-        self.resize(920, 760)
+        self.setWindowTitle(f"{APP_NAME} — {APP_TAGLINE_FA}")
+        self.setMinimumSize(880, 700)
+        self.resize(960, 780)
         self.setLayoutDirection(Qt.RightToLeft)
 
         self._build_ui()
@@ -79,30 +81,67 @@ class MainWindow(QMainWindow):
 
         sidebar_wrap = QFrame()
         sidebar_wrap.setObjectName("SidebarBrand")
-        sidebar_wrap.setFixedWidth(240)
+        sidebar_wrap.setFixedWidth(250)
         sb_layout = QVBoxLayout(sidebar_wrap)
-        sb_layout.setContentsMargins(16, 20, 16, 16)
-        sb_layout.setSpacing(8)
+        sb_layout.setContentsMargins(18, 22, 18, 18)
+        sb_layout.setSpacing(10)
 
-        brand = QLabel("SlideReport")
+        brand_row = QHBoxLayout()
+        brand_row.setSpacing(12)
+        logo = QLabel()
+        logo.setObjectName("BrandLogo")
+        logo.setFixedSize(48, 48)
+        logo.setScaledContents(True)
+        logo_file = logo_png()
+        if logo_file.is_file():
+            logo.setPixmap(QPixmap(str(logo_file)))
+        brand_col = QVBoxLayout()
+        brand_col.setSpacing(2)
+        brand = QLabel(APP_NAME)
         brand.setObjectName("BrandTitle")
-        brand.setAlignment(Qt.AlignRight)
-        sub = QLabel("گزارش‌ساز پاورپوینت")
+        brand.setAlignment(ALIGN_START)
+        sub = QLabel("عکس‌ها → پاورپوینت")
         sub.setObjectName("BrandSub")
-        sub.setAlignment(Qt.AlignRight)
-        sb_layout.addWidget(brand)
-        sb_layout.addWidget(sub)
+        sub.setAlignment(ALIGN_START)
+        brand_col.addWidget(brand)
+        brand_col.addWidget(sub)
+        brand_row.addWidget(logo)
+        brand_row.addLayout(brand_col, stretch=1)
+        sb_layout.addLayout(brand_row)
 
         self.sidebar = QListWidget()
         self.sidebar.setObjectName("Sidebar")
         self.sidebar.setIconSize(QSize(18, 18))
+        self.sidebar.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         for label, _idx in self.NAV_ITEMS:
             item = QListWidgetItem(label)
             self.sidebar.addItem(item)
         self.sidebar.currentRowChanged.connect(self._on_nav)
         sb_layout.addWidget(self.sidebar, stretch=1)
 
+        footer = QFrame()
+        footer.setObjectName("SidebarFooter")
+        footer_layout = QVBoxLayout(footer)
+        footer_layout.setContentsMargins(4, 10, 4, 0)
+        footer_layout.setSpacing(4)
+        hint = QLabel("Ctrl+O انتخاب پوشه  ·  F5 شروع  ·  Esc توقف")
+        hint.setObjectName("SidebarHint")
+        hint.setWordWrap(True)
+        hint.setAlignment(ALIGN_START)
+        ver = QLabel(f"نسخه {__version__}")
+        ver.setObjectName("SidebarHint")
+        ver.setAlignment(ALIGN_START)
+        footer_layout.addWidget(hint)
+        footer_layout.addWidget(ver)
+        sb_layout.addWidget(footer)
+
         layout.addWidget(sidebar_wrap)
+
+        content_wrap = QFrame()
+        content_wrap.setObjectName("ContentArea")
+        content_layout = QVBoxLayout(content_wrap)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(0)
 
         self.stack = QStackedWidget()
         self.home_page = HomePage(self)
@@ -111,7 +150,9 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.home_page)
         self.stack.addWidget(self.settings_page)
         self.stack.addWidget(self.about_page)
-        layout.addWidget(self.stack, stretch=1)
+        content_layout.addWidget(self.stack)
+
+        layout.addWidget(content_wrap, stretch=1)
 
     def change_page(self, index: int) -> None:
         if 0 <= index < self.stack.count():
@@ -122,7 +163,9 @@ class MainWindow(QMainWindow):
         if index < 0:
             return
         self.stack.setCurrentIndex(index)
-        if index == 2:
+        if index == 1:
+            self.settings_page.load_values()
+        elif index == 2:
             self.about_page.refresh_content()
 
     def apply_preferences(self) -> None:
@@ -139,6 +182,8 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event) -> None:
         if hasattr(self, "home_page") and self.home_page.worker:
             self.home_page.worker.cancel()
+        if hasattr(self, "settings_page"):
+            self.settings_page.commit()
         geo = self.saveGeometry().toBase64().data().decode("ascii")
         self.settings.set("window_geometry", geo)
         self.settings.save()

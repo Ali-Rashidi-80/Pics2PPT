@@ -136,15 +136,19 @@ def make_grouped_job(folder: Path, skip_names: set[str] | None = None) -> Presen
     )
 
 
+def _is_numeric_folder(name: str) -> bool:
+    return name.isdigit()
+
+
 def scan_project_folders(root: Path, skip_dir_names: set[str] | None = None) -> list[PresentationJob]:
     """
     Classify the selected path into PPTX jobs.
 
-    Unsupported patterns that are now handled:
+    Patterns:
     1. Flat folder with images → one simple PPTX
     2. Person/subject folder with topic subfolders → one grouped PPTX
-    3. Numbered/group subfolders (e.g. سرکش.../1, /2) → one grouped PPTX
-    4. Project root mixing (2)+(3)+flat topics → one PPTX per first-level unit
+    3. Numbered group subfolders (e.g. FieldTrip/1, /2) → one grouped PPTX
+    4. Project root with multiple first-level units → one PPTX per unit
     """
     root = Path(root)
     if not root.is_dir():
@@ -158,8 +162,7 @@ def scan_project_folders(root: Path, skip_dir_names: set[str] | None = None) -> 
     nested_containers = [c for c in children if is_container(c, skip)]
     leaf_topics = [c for c in children if collect_images(c) and not is_container(c, skip)]
 
-    # Project root: contains at least one nested person/group folder
-    if nested_containers:
+    def _jobs_from_children() -> list[PresentationJob]:
         jobs: list[PresentationJob] = []
         for child in children:
             if is_container(child, skip):
@@ -171,6 +174,15 @@ def scan_project_folders(root: Path, skip_dir_names: set[str] | None = None) -> 
             if job:
                 jobs.append(job)
         return jobs
+
+    # Project root: at least one nested person/group folder
+    if nested_containers:
+        return _jobs_from_children()
+
+    # Project root of named flat units (e.g. Visit/A, Visit/B with images)
+    # Keep all-numeric leaves as one grouped presentation (Pattern 3).
+    if len(leaf_topics) >= 2 and not all(_is_numeric_folder(c.name) for c in leaf_topics):
+        return _jobs_from_children()
 
     # Person / section folder selected directly (topics are leaf image folders)
     if leaf_topics:

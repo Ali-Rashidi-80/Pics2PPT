@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 from .models import BuildSettings
+from .output_paths import ConflictMode, OutputPlacement, job_output_file, resolve_output_path
 from .pptx_builder import build_presentation_from_job
 from .scanner import scan_project_folders
 
@@ -16,14 +17,23 @@ class WorkerSignals(QObject):
     log = Signal(str)
     error = Signal(str)
     folder_done = Signal(str)
-    finished = Signal(bool, str)  # success, output_dir
+    finished = Signal(bool, str)  # success, browse_dir
 
 
 class PresentationWorker(QRunnable):
-    def __init__(self, root_path: str, settings: BuildSettings) -> None:
+    def __init__(
+        self,
+        root_path: str,
+        settings: BuildSettings,
+        *,
+        conflict_mode: ConflictMode = "replace",
+        output_placement: OutputPlacement = "central",
+    ) -> None:
         super().__init__()
         self.root_path = Path(root_path)
         self.settings = settings
+        self.conflict_mode = conflict_mode
+        self.output_placement = output_placement
         self.signals = WorkerSignals()
         self.is_cancelled = False
         self.setAutoDelete(True)
@@ -36,10 +46,10 @@ class PresentationWorker(QRunnable):
 
     @Slot()
     def run(self) -> None:
-        output_dir = ""
+        browse_dir = ""
         try:
             self.signals.log.emit(f"شروع پیمایش: {self.root_path}")
-            folder_name = (self.settings.output_folder_name or "Output_PPTX").strip()
+            folder_name = (self.settings.output_folder_name or "Output_PPTX").strip() or "Output_PPTX"
             skip_dirs = {folder_name, "Output_PPTX"}
             jobs = scan_project_folders(self.root_path, skip_dir_names=skip_dirs)
             if not jobs:
@@ -49,17 +59,27 @@ class PresentationWorker(QRunnable):
                 self.signals.finished.emit(False, "")
                 return
 
-            output_dir = str(self.root_path / folder_name)
-            Path(output_dir).mkdir(parents=True, exist_ok=True)
+            if self.output_placement == "per_folder":
+                browse_dir = str(self.root_path)
+                placement_label = "داخل هر پوشه (Output_PPTX جداگانه)"
+            else:
+                browse_dir = str(self.root_path / folder_name)
+                Path(browse_dir).mkdir(parents=True, exist_ok=True)
+                placement_label = f"یکجا در {folder_name}"
 
-            self.signals.log.emit(f"پوشه خروجی: {output_dir}")
+            self.signals.log.emit(f"محل خروجی: {placement_label}")
             self.signals.log.emit(f"تعداد فایل PPTX: {len(jobs)}")
+
+            if self.conflict_mode == "version":
+                self.signals.log.emit("حالت خروجی: ساخت نسخهٔ جدید (بدون جایگزینی)")
+            else:
+                self.signals.log.emit("حالت خروجی: جایگزینی فایل‌های قبلی")
 
             total = len(jobs)
             for index, job in enumerate(jobs):
                 if self.is_cancelled:
                     self.signals.log.emit("عملیات لغو شد.")
-                    self.signals.finished.emit(False, output_dir)
+                    self.signals.finished.emit(False, browse_dir)
                     return
 
                 mode = "گروه‌بندی موضوعی" if job.grouped else "ساده"
@@ -67,7 +87,12 @@ class PresentationWorker(QRunnable):
                 self.signals.log.emit(f"[{index + 1}/{total}] «{job.name}» — {mode}")
                 self.signals.log.emit(f"    بخش‌ها: {sections}")
 
-                out_file = Path(output_dir) / f"{job.name}.pptx"
+                base = job_output_file(job, self.root_path, folder_name, self.output_placement)
+                base.parent.mkdir(parents=True, exist_ok=True)
+                out_file = resolve_output_path(base, self.conflict_mode)
+                if out_file.name != base.name:
+                    self.signals.log.emit(f"    نام خروجی: {out_file.name}")
+                self.signals.log.emit(f"    مسیر: {out_file.parent}")
                 try:
                     build_presentation_from_job(
                         job,
@@ -79,7 +104,7 @@ class PresentationWorker(QRunnable):
                     self.signals.log.emit(f"ذخیره شد: {out_file.name}")
                 except InterruptedError:
                     self.signals.log.emit("عملیات لغو شد.")
-                    self.signals.finished.emit(False, output_dir)
+                    self.signals.finished.emit(False, browse_dir)
                     return
                 except Exception as exc:
                     self.signals.error.emit(f"خطا در «{job.name}»: {exc}")
@@ -87,11 +112,11 @@ class PresentationWorker(QRunnable):
                 self.signals.progress.emit(int(((index + 1) / total) * 100))
 
             if self.is_cancelled:
-                self.signals.finished.emit(False, output_dir)
+                self.signals.finished.emit(False, browse_dir)
             else:
                 self.signals.log.emit("تمام فایل‌ها با موفقیت ساخته شدند.")
                 self.signals.progress.emit(100)
-                self.signals.finished.emit(True, output_dir)
+                self.signals.finished.emit(True, browse_dir)
         except Exception as exc:
             self.signals.error.emit(f"خطای کلی: {exc}")
-            self.signals.finished.emit(False, output_dir)
+            self.signals.finished.emit(False, browse_dir)

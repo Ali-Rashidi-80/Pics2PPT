@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 *.pptx
+!assets/templates/*.pptx
 .venv/
 venv/
 env/

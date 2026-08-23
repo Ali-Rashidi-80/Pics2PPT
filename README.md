@@ -8,7 +8,7 @@
 
 **Turn photo folders into polished, RTL-ready PowerPoint reports — automatically.**
 
-[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](app/__init__.py)
+[![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)](app/__init__.py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](requirements.txt)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](#system-requirements)
@@ -130,7 +130,7 @@ Assets: `assets/app_icon_256.png`, `assets/pics2ppt_logo.png`, `icon.ico`
 - **Three UI themes** — dark cyan (default), dark purple, light
 - **Output placement choice** — per-folder (manual-style) or central batch folder
 - **Conflict-safe writes** — replace, versioned `(2)` files, or cancel before build
-- **Persistent settings** — JSON in `%USERPROFILE%\.pics2ppt\settings.json` (`settings_version: 5`)
+- **Persistent settings** — JSON in `%USERPROFILE%\.pics2ppt\settings.json` (`settings_version: 6`)
 - **Session inputs cleared** — folder path, footer, logos reset each launch (privacy-friendly)
 - **Success dialog** — open output folder, input folder, or first PPTX after build
 - **Portable build** — one self-contained EXE (~50 MB with UPX)
@@ -347,7 +347,7 @@ Stored in `%USERPROFILE%\.pics2ppt\settings.json` (legacy paths migrated automat
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `settings_version` | `5` | Schema version |
+| `settings_version` | `6` | Schema version |
 | `ui_language` | OS locale or `fa` (migration) | UI language: `fa` · `en` |
 | `slide_language_mode` | `same_as_ui` | `same_as_ui` or `fixed` |
 | `slide_language` | follows UI or `fa` (migration) | PPTX labels/font when mode is `fixed` |

@@ -65,11 +65,11 @@ Simple users use **presets**; power users use **Expert Panel**.
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| **0** | Refactor `pptx_builder` → `app/core/pptx/*`, HybridEngine skeleton, settings v2, basic Expert UI, docs | Planned |
-| **1** | TemplateLoader + `Pics2PPT_Default.pptx`, code fallback, `output_mode` setting | Planned |
-| **2** | Core properties, EXIF captions, OpenXML depth, validator + `build_report.json` | Planned |
-| **3** | Full Expert Panel, custom template import, presets, table index slide, 50+ tests | Planned |
-| **4** | Optional COM, LibreOffice preview, plugins | Future |
+| **0** | Refactor `pptx_builder` → `app/core/pptx/*`, HybridEngine skeleton, settings v6, basic Expert UI, docs | Done |
+| **1** | TemplateLoader + `Pics2PPT_Default.pptx`, code fallback, `output_mode` setting | Done |
+| **2** | Core properties, EXIF captions, OpenXML depth, validator + `build_report.json` | Done |
+| **3** | Full Expert Panel, custom template import, presets, table index slide, 50+ tests | Done |
+| **4** | Optional COM, LibreOffice preview, plugins | Done |
 
 **Cross-check audit (4 passes):** [PPTX_GAP_AUDIT.md](PPTX_GAP_AUDIT.md) — **G1–G36** mapped; **final closure certificate** signed 2026-08-23.
 
@@ -144,7 +144,7 @@ See also: [PPTX_CAPABILITIES.md](PPTX_CAPABILITIES.md) for honest library limits
 - **100%** builds succeed without template (code fallback)
 - **Animations survive** template round-trip when template used
 - **≥80%** relevant python-pptx features used in code paths
-- **31 → 50+** automated tests
+- **31 → 80+** automated tests (baseline v1.4.0 = **59**)
 - Every build produces validator result (pass or explicit warning)
 
 ---

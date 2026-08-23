@@ -100,7 +100,7 @@ Enable **section dividers** in Settings. Job must be `grouped` (multiple section
 
 Legacy paths (`.slidereport`, `.gen_powerpoint`) migrate automatically.
 
-Current schema: `settings_version: 5` (UI/slide language keys + `ui_language_confirmed`).
+Current schema: `settings_version: 6` (PPTX Hybrid Smart keys + UI/slide language).
 Language choice also lives in `%USERPROFILE%\.pics2ppt\ui_language.json`.
 
 ### Do folder path and footer persist after restart?

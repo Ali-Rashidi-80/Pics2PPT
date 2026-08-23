@@ -6,6 +6,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.5.0] — 2026-08-23
+
+### Added
+- **Hybrid Smart PPTX engine** — `auto` / `template` / `code` output modes with code-path fallback
+- Package `app/core/pptx/` — orchestrator, code layout, template load/fill, OpenXML helpers, validator
+- Bundled default template `assets/templates/Pics2PPT_Default.pptx` (+ authoring README)
+- **Expert Panel** — slide size presets, PPTX font sizes, colors, document metadata, image fit
+- **Output presets** — Report / Minimal / Print / Brand (`~/.pics2ppt/presets/`)
+- Template import + layout analyzer/wizard; optional table-of-contents index slide
+- Run-safe `{{token}}` fill, PicturePlaceholder insert + crop modes, `.potx` support
+- Core document properties, EXIF auto-rotate / captions / GPS strip, native `p14` sections
+- Per-build `*_build_report.json` validator (optional openxml-audit hook)
+- Optional Phase 4: COM post-process, LibreOffice PDF/PNG preview, plugin hooks
+- Settings schema **v6** — PPTX engine keys with migration from v5
+- **40+ new engine tests**; **99 tests** total
+
+### Changed
+- `pptx_builder.py` is a thin facade over `HybridEngine`
+- `python-pptx` pinned to `>=1.0.2`
+- Portable build bundles `assets/templates/`
+
+### Fixed
+- Ampersand in image filenames no longer breaks PPTX XML (G28)
+
+---
+
 ## [1.4.0] — 2026-08-23
 
 ### Added

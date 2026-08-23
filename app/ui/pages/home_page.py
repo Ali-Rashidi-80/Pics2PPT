@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from app.core.models import BuildSettings
+from app.core.models import PptxOutputSettings
 from app.core.output_paths import (
     ConflictMode,
     OutputPlacement,
@@ -227,7 +227,7 @@ class HomePage(QWidget):
         self.logo_left_edit.clear()
         self._set_status("idle")
 
-    def build_settings(self) -> BuildSettings:
+    def build_settings(self) -> PptxOutputSettings:
         data = self.parent_window.settings.build_settings_dict()
         data["footer_text"] = self.footer_edit.text().strip()
         data["logo_right"] = self.logo_right_edit.text().strip()
@@ -235,7 +235,7 @@ class HomePage(QWidget):
         data["ui_language"] = self.parent_window.settings.get("ui_language", "fa")
         data["slide_language_mode"] = self.parent_window.settings.get("slide_language_mode", "same_as_ui")
         data["slide_language"] = self.parent_window.settings.get("slide_language", "fa")
-        return BuildSettings.from_dict(data)
+        return PptxOutputSettings.from_dict(data)
 
     def _browse_root(self) -> None:
         start = self.root_edit.text().strip() or str(Path.home() / "Desktop")

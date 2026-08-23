@@ -41,11 +41,11 @@
 
 | فاز | محتوا | وضعیت |
 |-----|-------|--------|
-| **۰** | Refactor، HybridEngine، settings v2، Expert پایه، docs | برنامه‌ریزی |
-| **۱** | TemplateLoader + قالب پیش‌فرض + fallback | برنامه‌ریزی |
-| **۲** | metadata، EXIF، OpenXML، validator | برنامه‌ریزی |
-| **۳** | Expert کامل، import قالب، preset، ۵۰+ تست | برنامه‌ریزی |
-| **۴** | COM اختیاری، preview | آینده |
+| **۰** | Refactor، HybridEngine، settings v6، Expert پایه، docs | انجام شد |
+| **۱** | TemplateLoader + قالب پیش‌فرض + fallback | انجام شد |
+| **۲** | metadata، EXIF، OpenXML، validator | انجام شد |
+| **۳** | Expert کامل، import قالب، preset، ۵۰+ تست | انجام شد |
+| **۴** | COM اختیاری، پیش‌نمایش LibreOffice، پلاگین | انجام شد |
 
 جزئیات: [PPTX_CAPABILITIES.md](PPTX_CAPABILITIES.fa.md)
 

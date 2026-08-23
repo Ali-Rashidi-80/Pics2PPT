@@ -119,7 +119,7 @@ flowchart TB
 
 ### `app/services/settings.py`
 
-- JSON at `%USERPROFILE%\.pics2ppt\settings.json` (schema v5).
+- JSON at `%USERPROFILE%\.pics2ppt\settings.json` (schema v6).
 - Language keys: `ui_language`, `slide_language_mode`, `slide_language`, `ui_language_confirmed`.
 - Migrates legacy `.slidereport`, `.gen_powerpoint`.
 - Window geometry persistence.

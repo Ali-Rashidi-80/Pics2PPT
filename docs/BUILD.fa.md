@@ -53,12 +53,12 @@ Get-ChildItem dist
 
 ## چک‌لیست انتشار
 
-- [ ] نسخه در `app/__init__.py` → `1.4.0`
+- [ ] نسخه در `app/__init__.py` → `1.5.0`
 - [ ] CHANGELOG
 - [ ] ۵۹ تست
 - [ ] build.bat
 - [ ] EXE در GitHub Release (نه در git)
-- [ ] تگ: `v1.4.0`
+- [ ] تگ: `v1.5.0`
 
 ---
 

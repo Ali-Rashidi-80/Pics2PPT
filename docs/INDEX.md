@@ -40,7 +40,7 @@ Central index for all **Pics2PPT** documentation. English is the default languag
 | [ROADMAP.fa.md](ROADMAP.fa.md) | Persian roadmap |
 | [PPTX_CAPABILITIES.md](PPTX_CAPABILITIES.md) | python-pptx usage map and honest limits |
 | [PPTX_CAPABILITIES.fa.md](PPTX_CAPABILITIES.fa.md) | Persian capabilities notes |
-| [PPTX_GAP_AUDIT.md](PPTX_GAP_AUDIT.md) | Web/docs cross-check — 14 gaps mapped |
+| [PPTX_GAP_AUDIT.md](PPTX_GAP_AUDIT.md) | Web/docs cross-check — G1–G36 mapped |
 | [PPTX_GAP_AUDIT.fa.md](PPTX_GAP_AUDIT.fa.md) | Persian gap audit |
 
 ---

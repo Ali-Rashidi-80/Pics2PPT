@@ -12,7 +12,8 @@ from app.services import language_prefs
 VALID_THEMES = frozenset({"dark_cyan", "dark_purple", "light"})
 VALID_UI_LANGUAGES = frozenset({"fa", "en"})
 VALID_SLIDE_LANGUAGE_MODES = frozenset({"same_as_ui", "fixed"})
-SETTINGS_VERSION = 5
+VALID_OUTPUT_MODES = frozenset({"auto", "template", "code"})
+SETTINGS_VERSION = 6
 
 # Cleared on every launch — must not survive across app restarts.
 SESSION_INPUT_KEYS = frozenset({"last_input_dir", "footer_text", "logo_right", "logo_left"})
@@ -41,6 +42,17 @@ LEGACY_MERGE_KEYS = (
     "slide_language_mode",
     "slide_language",
     "ui_language_confirmed",
+    "output_mode",
+    "template_path",
+    "slide_size_preset",
+    "image_fit",
+    "enable_auto_rotate",
+    "strip_gps",
+    "caption_source",
+    "enable_native_sections",
+    "write_build_report",
+    "doc_title",
+    "doc_author",
 )
 
 DEFAULT_SETTINGS = {
@@ -74,6 +86,28 @@ DEFAULT_SETTINGS = {
     "slide_language": "fa",
     # False until the first-run picker (or v4 migration) confirms a choice.
     "ui_language_confirmed": False,
+    "output_mode": "auto",
+    "template_path": "",
+    "slide_size_preset": "widescreen_16_9",
+    "image_fit": "fit",
+    "enable_auto_rotate": True,
+    "strip_gps": True,
+    "caption_source": "filename",
+    "enable_native_sections": True,
+    "write_build_report": True,
+    "enable_index_slide": False,
+    "active_preset": "",
+    "enable_com_postprocess": False,
+    "enable_libreoffice_preview": False,
+    "enable_plugins": False,
+    "preview_format": "pdf",
+    "doc_title": "",
+    "doc_author": "",
+    "color_title": "000000",
+    "color_muted": "505050",
+    "color_accent": "0F3D2E",
+    "color_border": "B4B4B4",
+    "color_background": "FFFFFF",
 }
 
 
@@ -124,7 +158,7 @@ class SettingsManager:
         if from_legacy:
             return False
         version = int(raw.get("settings_version") or 0)
-        if version < SETTINGS_VERSION:
+        if version < 5:
             return True
         return False
 
@@ -142,7 +176,7 @@ class SettingsManager:
         if version < 4:
             self._data["theme"] = DEFAULT_SETTINGS["theme"]
             changed = True
-        if version < SETTINGS_VERSION:
+        if version < 5:
             if version == 0 or self._fresh_install:
                 detected = detect()
                 self._data["ui_language"] = detected
@@ -156,7 +190,40 @@ class SettingsManager:
                     self._data["ui_language_confirmed"] = True
                     self._sync_language_prefs()
             self._data["slide_language_mode"] = "same_as_ui"
+            changed = True
+        if version < 6:
+            self._data.setdefault("output_mode", "auto")
+            self._data.setdefault("template_path", "")
+            self._data.setdefault("slide_size_preset", "widescreen_16_9")
+            self._data.setdefault("image_fit", "fit")
+            self._data.setdefault("enable_auto_rotate", True)
+            self._data.setdefault("strip_gps", True)
+            self._data.setdefault("caption_source", "filename")
+            self._data.setdefault("enable_native_sections", True)
+            self._data.setdefault("write_build_report", True)
+            self._data.setdefault("enable_index_slide", False)
+            self._data.setdefault("color_title", "000000")
+            self._data.setdefault("color_muted", "505050")
+            self._data.setdefault("color_accent", "0F3D2E")
+            self._data.setdefault("color_border", "B4B4B4")
+            self._data.setdefault("color_background", "FFFFFF")
+            changed = True
+        if version < SETTINGS_VERSION:
             self._data["settings_version"] = SETTINGS_VERSION
+            changed = True
+        output_mode = self._data.get("output_mode")
+        if output_mode not in VALID_OUTPUT_MODES:
+            self._data["output_mode"] = DEFAULT_SETTINGS["output_mode"]
+            changed = True
+        from app.core.pptx.slide_sizes import VALID_SLIDE_SIZE_PRESETS
+        from app.core.pptx.template_pictures import VALID_IMAGE_FIT
+
+        preset = self._data.get("slide_size_preset")
+        if preset not in VALID_SLIDE_SIZE_PRESETS:
+            self._data["slide_size_preset"] = DEFAULT_SETTINGS["slide_size_preset"]
+            changed = True
+        if self._data.get("image_fit") not in VALID_IMAGE_FIT:
+            self._data["image_fit"] = DEFAULT_SETTINGS["image_fit"]
             changed = True
         if "ui_language_confirmed" not in self._data:
             self._data["ui_language_confirmed"] = False
@@ -353,6 +420,34 @@ class SettingsManager:
             "ui_language",
             "slide_language_mode",
             "slide_language",
+            "output_mode",
+            "template_path",
+            "slide_size_preset",
+            "image_fit",
+            "layout_index_grid",
+            "layout_index_detail",
+            "layout_index_divider",
+            "enable_auto_rotate",
+            "strip_gps",
+            "caption_source",
+            "enable_native_sections",
+            "write_build_report",
+            "doc_title",
+            "doc_author",
+            "enable_index_slide",
+            "active_preset",
+            "enable_com_postprocess",
+            "enable_libreoffice_preview",
+            "enable_plugins",
+            "preview_format",
+            "doc_subject",
+            "doc_category",
+            "doc_keywords",
+            "color_title",
+            "color_muted",
+            "color_accent",
+            "color_border",
+            "color_background",
         ]
         return {k: self.get(k) for k in keys}
 

@@ -100,7 +100,7 @@ If you see `dist/Pics2PPT/` folder with many DLLs, the spec was changed to onedi
 - [ ] Run `build.bat` on clean machine or CI
 - [ ] Smoke test EXE: select sample folder, build, open pptx
 - [ ] Attach `Pics2PPT.exe` to GitHub Release (not committed to git)
-- [ ] Tag: `v1.4.0`
+- [ ] Tag: `v1.5.0`
 
 ---
 

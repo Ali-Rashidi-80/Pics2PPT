@@ -13,6 +13,7 @@ a = Analysis(
     datas=[
         (str(root / "assets" / "app_icon_256.png"), "assets"),
         (str(root / "assets" / "pics2ppt_logo.png"), "assets"),
+        (str(root / "assets" / "templates"), "assets/templates"),
         (str(root / "icon.ico"), "."),
     ],
     hiddenimports=[
@@ -22,6 +23,14 @@ a = Analysis(
         "app.core",
         "app.core.scanner",
         "app.core.pptx_builder",
+        "app.core.pptx",
+        "app.core.pptx.engine",
+        "app.core.pptx.code_layout",
+        "app.core.pptx.template_loader",
+        "app.core.pptx.template_layout",
+        "app.core.pptx.template_fill",
+        "app.core.pptx.template_analyzer",
+        "app.core.pptx.template_pictures",
         "app.core.image_processor",
         "app.core.worker",
         "app.core.models",

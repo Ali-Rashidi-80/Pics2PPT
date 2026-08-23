@@ -10,7 +10,7 @@ from app.i18n import set_build_slide_language, t
 
 from .models import BuildSettings
 from .output_paths import ConflictMode, OutputPlacement, job_output_file, resolve_output_path
-from .pptx_builder import build_presentation_from_job
+from .pptx.engine import HybridEngine
 from .scanner import scan_project_folders
 
 
@@ -112,14 +112,23 @@ class PresentationWorker(QRunnable):
                     self._log("worker.log.output_name", name=out_file.name)
                 self._log("worker.log.output_path", path=out_file.parent)
                 try:
-                    build_presentation_from_job(
+                    result = HybridEngine().build(
                         job,
                         out_file,
                         settings=self.settings,
                         should_cancel=self._cancelled,
                     )
-                    self.signals.folder_done.emit(str(out_file))
-                    self._log("worker.log.saved", name=out_file.name)
+                    path_label = t(
+                        "worker.log.build_path.template"
+                        if result.path_used.value == "template"
+                        else "worker.log.build_path.code",
+                        lang=lang,
+                    )
+                    self._log("worker.log.build_path", path=path_label)
+                    if result.template_path:
+                        self._log("worker.log.template_used", path=result.template_path.name)
+                    self.signals.folder_done.emit(str(result.output_path))
+                    self._log("worker.log.saved", name=result.output_path.name)
                 except InterruptedError:
                     self._log("worker.log.cancelled")
                     self.signals.finished.emit(False, browse_dir)

@@ -8,7 +8,7 @@
 
 **تبدیل خودکار پوشه‌های تصویری به گزارش پاورپوینت حرفه‌ای — رابط دوزبانه FA/EN، RTL/LTR، شبکه ۲×۲**
 
-[![نسخه](https://img.shields.io/badge/version-1.4.0-blue.svg)](app/__init__.py)
+[![نسخه](https://img.shields.io/badge/version-1.5.0-blue.svg)](app/__init__.py)
 [![مجوز: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](requirements.txt)
 [![پلتفرم](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](#نیازمندی‌های-سیستم)
@@ -128,7 +128,7 @@
 - **سه تم UI** — فیروزه‌ای تیره (پیش‌فرض)، ارغوانی تیره، روشن
 - **انتخاب محل خروجی** — داخل هر پوشه یا یکجا
 - **نوشتن امن** — جایگزین، نسخه `(۲)`، یا انصراف
-- **تنظیمات پایدار** — `%USERPROFILE%\.pics2ppt\settings.json` (`settings_version: 5`)
+- **تنظیمات پایدار** — `%USERPROFILE%\.pics2ppt\settings.json` (`settings_version: 6`)
 - **ورودی جلسه پاک** — مسیر، پاورقی، لوگو در هر اجرا ریست می‌شوند
 - **دیالوگ موفقیت** — باز کردن پوشه خروجی، ورودی، یا اولین PPTX
 - **بیلد پرتابل** — یک EXE (~۵۰ مگ با UPX)
@@ -343,7 +343,7 @@ Person/
 
 | کلید | پیش‌فرض | توضیح |
 |------|---------|-------|
-| `settings_version` | `5` | نسخه schema |
+| `settings_version` | `6` | نسخه schema |
 | `ui_language` | انتخاب اولین اجرا یا `fa` | زبان رابط: `fa` · `en` |
 | `ui_language_confirmed` | بعد از انتخاب `true` | آیا دیالوگ اولین اجرا انجام شده |
 | `slide_language_mode` | `same_as_ui` | `same_as_ui` یا `fixed` |

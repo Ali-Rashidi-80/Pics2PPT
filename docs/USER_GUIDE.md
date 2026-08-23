@@ -1,6 +1,6 @@
 # User Guide
 
-[فارسی](USER_GUIDE.fa.md) · [Back to README](../README.md)
+[Persian](USER_GUIDE.fa.md) · [Back to README](../README.md)
 
 Complete walkthrough for **Pics2PPT** end users and power users.
 
@@ -29,24 +29,24 @@ python main.py
 ## 2. Main window overview
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│ Sidebar          │  Home / Settings / About             │
-│ ┌──────────────┐ │                                      │
-│ │ Logo Pics2PPT│ │  [Input folder path        ] [Browse]│
-│ │ عکس→پاورپوینت│ │  [Footer text              ]         │
-│ ├──────────────┤ │  [Logo left] [Logo right]            │
-│ │ ساخت گزارش   │ │  [Start] [Cancel]                    │
-│ │ تنظیمات      │ │  Progress + log                      │
-│ │ درباره       │ │                                      │
-│ └──────────────┘ │                                      │
-└─────────────────────────────────────────────────────────┘
++------------------+------------------------------------------+
+| Sidebar          | Home / Settings / About                  |
+| +--------------+ |                                          |
+| | Logo Pics2PPT| | [Input folder path           ] [Browse]  |
+| | Photos->PPT  | | [Footer text                 ]           |
+| +--------------+ | [Logo left] [Logo right]                 |
+| | Build Report | | [Start] [Cancel]                         |
+| | Settings     | | Progress + log                           |
+| | About & Help | |                                          |
+| +--------------+ |                                          |
++------------------+------------------------------------------+
 ```
 
 | Tab | Purpose |
 |-----|---------|
 | **Home** | Select folder, footer/logos per run, start build |
-| **Settings** | Theme, defaults, output folder name, PPTX options |
-| **About** | Version, native RTL help panel, folder pattern reference |
+| **Settings** | Theme, UI/slide language, defaults, output folder name, PPTX options |
+| **About** | Version, bilingual help panel, folder pattern reference |
 
 ---
 
@@ -93,8 +93,8 @@ Press **Cancel** or `Esc` to stop between jobs (current job may finish writing).
 
 | Choice | Result |
 |--------|--------|
-| **Inside each folder** (داخل هر پوشه) | `<unit>\Output_PPTX\<unit>.pptx` — manual-style |
-| **Central** (یکجا) | `<selected-root>\Output_PPTX\*.pptx` |
+| **Inside each folder** | `<unit>\Output_PPTX\<unit>.pptx` — manual-style |
+| **Central** | `<selected-root>\Output_PPTX\*.pptx` |
 
 Single-job runs use per-folder placement automatically.
 
@@ -131,6 +131,12 @@ Central:     <selected-root>\Output_PPTX\<job>.pptx
 |---------|--------|--------|
 | Theme | dark_cyan, dark_purple, light | UI colors |
 | Font size | small, medium, large | UI text scale |
+| **UI language** | Persian · English | Entire app UI + help panel (live switch) |
+| **Slide content** | Same as UI · Persian · English | Section titles and PPTX RTL/LTR/font |
+
+> **UI vs slide language:** UI language controls menus, buttons, and logs. Slide content controls what appears *inside the generated `.pptx`* (section names, RTL/LTR, default font). Default is **Same as UI** so both stay aligned unless you override slides for an English audience while keeping a Persian UI.
+>
+> On a **brand-new install**, Pics2PPT opens a bilingual picker (**Persian** / **English**). The highlighted default follows Windows locale; you can change language anytime in Settings. The choice is stored in `ui_language.json` and is not asked again.
 
 ### Output
 

@@ -1,6 +1,6 @@
 # Development Roadmap
 
-[فارسی](ROADMAP.fa.md) · [Back to README](../README.md)
+[Persian](ROADMAP.fa.md) · [Back to README](../README.md)
 
 Official development direction for **Pics2PPT** PPTX engine expansion.
 

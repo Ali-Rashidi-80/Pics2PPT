@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from app.i18n import t_slide
+
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 IGNORE_NAMES = {"thumbs.db"}
 IGNORE_EXTENSIONS = {".rar", ".zip"}
@@ -77,7 +79,7 @@ def make_flat_job(folder: Path) -> PresentationJob | None:
 def _section_label(name: str) -> str:
     """Prettier labels for purely numeric group folders (1, 2, …)."""
     if name.isdigit():
-        return f"گروه {name}"
+        return t_slide("pptx.section.group_n", n=name)
     return name
 
 
@@ -85,7 +87,7 @@ def make_grouped_job(folder: Path, skip_names: set[str] | None = None) -> Presen
     """
     Build one PPTX job from a person/subject folder.
 
-    - Direct images → section «تصاویر کلی»
+    - Direct images → section "General images" / overview (via t_slide)
     - Each image-bearing subdirectory → its own named section
     """
     groups: list[ImageGroup] = []
@@ -95,7 +97,7 @@ def make_grouped_job(folder: Path, skip_names: set[str] | None = None) -> Presen
     has_topics = any(collect_images(d) for d in topic_dirs)
 
     if own and has_topics:
-        groups.append(ImageGroup(name="تصاویر کلی", images=own))
+        groups.append(ImageGroup(name=t_slide("pptx.section.overview"), images=own))
     elif own and not has_topics:
         groups.append(ImageGroup(name=folder.name, images=own))
 
@@ -152,7 +154,7 @@ def scan_project_folders(root: Path, skip_dir_names: set[str] | None = None) -> 
     """
     root = Path(root)
     if not root.is_dir():
-        raise NotADirectoryError(f"مسیر معتبر نیست: {root}")
+        raise NotADirectoryError(t_slide("scanner.err.invalid_path", path=root))
 
     skip = set(SKIP_DIR_NAMES)
     if skip_dir_names:

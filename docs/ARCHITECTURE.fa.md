@@ -15,7 +15,7 @@
 | PPTX | python-pptx + lxml |
 | تصویر | Pillow |
 | بسته‌بندی | PyInstaller (EXE تک‌فایل) |
-| تست | unittest / pytest — ۳۸ تست |
+| تست | unittest / pytest — ۵۹ تست |
 
 ---
 

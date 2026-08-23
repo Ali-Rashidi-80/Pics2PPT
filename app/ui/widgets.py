@@ -40,6 +40,8 @@ def make_page_header(title: str, subtitle: str) -> QFrame:
     layout.addWidget(accent)
     layout.addWidget(t)
     layout.addWidget(s)
+    frame.title_label = t  # type: ignore[attr-defined]
+    frame.subtitle_label = s  # type: ignore[attr-defined]
     return frame
 
 
@@ -59,10 +61,11 @@ def make_tip_card(text: str) -> QFrame:
     body.setAlignment(ALIGN_START)
     layout.addWidget(icon)
     layout.addWidget(body, stretch=1)
+    frame.body_label = body  # type: ignore[attr-defined]
     return frame
 
 
-def make_log_panel(title: str = "گزارش عملیات", *, log_height: int = 88) -> tuple[QFrame, QTextEdit]:
+def make_log_panel(title: str = "گزارش عملیات", *, log_height: int = 88) -> tuple[QFrame, QTextEdit, QLabel]:
     panel = QFrame()
     panel.setObjectName("LogPanel")
     panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -82,7 +85,7 @@ def make_log_panel(title: str = "گزارش عملیات", *, log_height: int = 
     log.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
     log.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
     layout.addWidget(log)
-    return panel, log
+    return panel, log, lbl
 
 
 def make_icon_button(tooltip: str = "") -> QPushButton:
@@ -119,6 +122,7 @@ def make_stacked_field(label: str, content: QWidget | QHBoxLayout | QVBoxLayout)
         layout.addWidget(content)
     else:
         layout.addWidget(wrap_layout(content))
+    host.field_label = lbl  # type: ignore[attr-defined]
     return host
 
 

@@ -6,6 +6,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.4.0] — 2026-08-23
+
+### Added
+- **Full bilingual UI** — Persian + English with live language switch (no restart)
+- **First-run language picker** — on a brand-new install the app asks Persian / English (Escape keeps OS suggestion)
+- **Separate slide content language** — Settings → *Slide content*: Same as UI / Persian / English
+- **OS locale suggestion** — first-run dialog highlights the Windows-locale suggestion (`fa*` → Persian)
+- `app/i18n/` module — Python catalogs, `t()` / `t_slide()`, help content FA+EN
+- Settings schema **v5** — `ui_language`, `slide_language_mode`, `slide_language`, `ui_language_confirmed`
+- RTL/LTR layout switching for entire app (sidebar, dialogs, scroll areas, path fields stay LTR)
+- English PPTX output — LTR paragraphs, Calibri font, English section labels
+- Dedicated **`ui_language.json`** prefs file — first-run choice survives settings rewrites
+- **21 new i18n tests** (`tests/test_i18n.py`); **59 tests** total
+
+### Changed
+- Existing users (v4 migration) keep **Persian UI + Persian slides** (`ui_language=fa`) and are **not** re-prompted
+- Help panel builds in FA or EN based on active UI language
+- Settings page language combos apply theme/locale immediately
+
+### Fixed
+- Settings page infinite signal loop when changing theme or language (tests no longer hang)
+- First-run language picker reappearing on every launch (prefs now stored separately from `settings.json`)
+
+---
+
 ## [1.3.0] — 2026-08-23
 
 ### Added

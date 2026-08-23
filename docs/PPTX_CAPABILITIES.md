@@ -1,6 +1,6 @@
 # PPTX Capabilities & Limits
 
-[فارسی](PPTX_CAPABILITIES.fa.md) · [Roadmap](ROADMAP.md) · [Gap audit](PPTX_GAP_AUDIT.md)
+[Persian](PPTX_CAPABILITIES.fa.md) · [Roadmap](ROADMAP.md) · [Gap audit](PPTX_GAP_AUDIT.md)
 
 Honest map of what **Pics2PPT** uses, plans, and **deliberately excludes** — cross-checked against [python-pptx docs](https://python-pptx.readthedocs.io/) and production literature.
 

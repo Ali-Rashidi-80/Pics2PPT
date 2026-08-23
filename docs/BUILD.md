@@ -1,6 +1,6 @@
 # Build & Release Guide
 
-[فارسی](BUILD.fa.md) · [Back to README](../README.md)
+[Persian](BUILD.fa.md) · [Back to README](../README.md)
 
 How to produce the **single-file portable** `Pics2PPT.exe`.
 
@@ -96,11 +96,11 @@ If you see `dist/Pics2PPT/` folder with many DLLs, the spec was changed to onedi
 
 - [ ] Bump `__version__` in `app/__init__.py`
 - [ ] Update `CHANGELOG.md` and `CHANGELOG.fa.md`
-- [ ] Run full test suite (38 tests)
+- [ ] Run full test suite (59 tests)
 - [ ] Run `build.bat` on clean machine or CI
 - [ ] Smoke test EXE: select sample folder, build, open pptx
 - [ ] Attach `Pics2PPT.exe` to GitHub Release (not committed to git)
-- [ ] Tag: `v1.3.0`
+- [ ] Tag: `v1.4.0`
 
 ---
 

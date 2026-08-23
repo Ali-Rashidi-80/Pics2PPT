@@ -73,7 +73,7 @@ def apply_layout_direction(root: QWidget, rtl: bool = True) -> None:
         if isinstance(area, QTextEdit):
             continue
         if isinstance(area, (QScrollArea, RtlScrollArea)):
-            configure_rtl_scroll(area)
+            configure_rtl_scroll(area, rtl=rtl)
         else:
             area.setLayoutDirection(direction)
 
@@ -123,7 +123,8 @@ def apply_layout_direction(root: QWidget, rtl: bool = True) -> None:
         group.setAlignment(Qt.AlignmentFlag.AlignLeading)
 
     for lst in root.findChildren(QListWidget):
-        lst.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        lst_dir = Qt.LayoutDirection.RightToLeft if rtl else Qt.LayoutDirection.LeftToRight
+        lst.setLayoutDirection(lst_dir)
         lst.setLayoutMode(QListWidget.LayoutMode.SinglePass)
         bar = lst.verticalScrollBar()
         if bar is not None:
@@ -132,6 +133,16 @@ def apply_layout_direction(root: QWidget, rtl: bool = True) -> None:
             item = lst.item(i)
             if item is not None:
                 item.setTextAlignment(Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignVCenter)
+
+
+def configure_footer_field(edit: QLineEdit, *, rtl: bool) -> None:
+    """Footer text follows UI reading direction."""
+    if rtl:
+        edit.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        edit.setAlignment(Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignVCenter)
+    else:
+        edit.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        edit.setAlignment(Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignVCenter)
 
 
 def mark_path_field(edit: QLineEdit) -> None:

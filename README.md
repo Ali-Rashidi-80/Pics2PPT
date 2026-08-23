@@ -1,6 +1,6 @@
 <div align="center">
 
-**English** · [فارسی](README.fa.md)
+**English** · [Persian](README.fa.md)
 
 <img src="assets/app_icon_256.png" alt="Pics2PPT logo" width="128" height="128" />
 
@@ -8,11 +8,11 @@
 
 **Turn photo folders into polished, RTL-ready PowerPoint reports — automatically.**
 
-[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](app/__init__.py)
+[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](app/__init__.py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](requirements.txt)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](#system-requirements)
-[![Tests](https://img.shields.io/badge/tests-38%20passing-brightgreen.svg)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-59%20passing-brightgreen.svg)](#running-tests)
 
 </div>
 
@@ -57,12 +57,13 @@
 
 ## What is Pics2PPT?
 
-**Pics2PPT** is a desktop application (Python + PySide6) that scans folders of images and builds **Persian RTL PowerPoint (`.pptx`) reports** with:
+**Pics2PPT** is a desktop application (Python + PySide6) that scans folders of images and builds **bilingual PowerPoint (`.pptx`) reports** (Persian RTL or English LTR) with:
 
 - a **2×2 image grid** per slide (up to 4 photos, aspect ratio preserved),
 - optional **section divider slides** for multi-topic folders,
 - **click-to-zoom** and **hover-to-zoom** detail slides in slideshow mode,
-- configurable logos, footer text, compression, and themes.
+- configurable logos, footer text, compression, and themes,
+- a **first-run language picker** and live UI language switch (Persian / English).
 
 You select one input folder → the app detects the layout → it writes `.pptx` files into an output subfolder. For **multi-job project roots**, you choose whether outputs go **inside each unit folder** (manual-style) or **centrally** under one `Output_PPTX`.
 
@@ -79,7 +80,7 @@ You select one input folder → the app detects the layout → it writes `.pptx`
 |--------|-------------------|
 | Hundreds of field photos in nested folders | Auto-detects flat, grouped, and project-root layouts |
 | Manual copy/paste into slides | Builds all decks in one batch |
-| RTL Persian text alignment | Right-to-left paragraphs, B Nazanin by default |
+| Persian RTL or English LTR decks | Slide language follows UI or a fixed FA/EN choice; B Nazanin / Calibri defaults |
 | Heavy original JPEGs | Pillow compression + max dimension cap |
 | Review meetings need zoom on a photo | Click/hover linked detail slides |
 | Non-technical users on Windows | Single portable `Pics2PPT.exe`, no Python install |
@@ -90,26 +91,27 @@ You select one input folder → the app detects the layout → it writes `.pptx`
 
 ## Screenshots & UI preview
 
-> Placeholder until release screenshots are captured. The ASCII mock matches the current RTL layout.
+> Placeholder until release screenshots are captured. Diagram below is **English UI** (ASCII-only so GitHub monospace stays aligned). Persian UI mirrors the same layout RTL.
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│  [Logo] Pics2PPT          │  Home / Settings / About       │
-│  عکس → پاورپوینت           │                                  │
-├───────────────────────────┤  Input folder          [Browse]   │
-│  ● ساخت گزارش              │  Footer text                     │
-│    تنظیمات                 │  Logo L          Logo R          │
-│    درباره                  │  [Start F5]  [Cancel]  [Clear]   │
-│                           │  ▓▓▓▓▓▓▓▓░░░░  Progress          │
-│                           │  Log (compact, ~88px)            │
-└───────────────────────────┴──────────────────────────────────┘
++---------------------------+----------------------------------+
+| [Logo] Pics2PPT           | Home / Settings / About          |
+| Photos -> PowerPoint      |                                  |
+|---------------------------+----------------------------------|
+| * Build Report            | Input folder            [Browse] |
+|   Settings                | Footer text                      |
+|   About & Help            | Logo L              Logo R       |
+|                           | [Start F5] [Cancel] [Clear]      |
+|                           | [########....] Progress          |
+|                           | Log (compact)                    |
++---------------------------+----------------------------------+
 ```
 
 | Tab | Purpose |
 |-----|---------|
 | **Home** | Select folder, footer/logos per run, start build, clear session inputs |
-| **Settings** | Theme, defaults, output folder name, PPTX quality options |
-| **About** | Version, native RTL help panel, folder pattern reference |
+| **Settings** | Theme, UI/slide language, defaults, output folder name, PPTX quality |
+| **About** | Version, bilingual help panel, folder pattern reference |
 
 Assets: `assets/app_icon_256.png`, `assets/pics2ppt_logo.png`, `icon.ico`
 
@@ -123,14 +125,16 @@ Assets: `assets/app_icon_256.png`, `assets/pics2ppt_logo.png`, `icon.ico`
 - **Slideshow interactivity** — click zoom; hover zoom via OpenXML `hlinkHover` (python-pptx workaround)
 - **Dual logos + footer** — optional left/right logos and custom footer line on every slide
 - **Image polish** — optional shadow, border, filename captions below images (not in header)
+- **Bilingual UI (FA + EN)** — first-run language picker, live switch, RTL/LTR layout
+- **Separate slide language** — PPTX labels/font can follow UI or be fixed to Persian or English
 - **Three UI themes** — dark cyan (default), dark purple, light
 - **Output placement choice** — per-folder (manual-style) or central batch folder
 - **Conflict-safe writes** — replace, versioned `(2)` files, or cancel before build
-- **Persistent settings** — JSON in `%USERPROFILE%\.pics2ppt\settings.json` (`settings_version: 4`)
+- **Persistent settings** — JSON in `%USERPROFILE%\.pics2ppt\settings.json` (`settings_version: 5`)
 - **Session inputs cleared** — folder path, footer, logos reset each launch (privacy-friendly)
 - **Success dialog** — open output folder, input folder, or first PPTX after build
 - **Portable build** — one self-contained EXE (~50 MB with UPX)
-- **38 automated tests** — scanner, output paths, PPTX XML, worker E2E, UI smoke, help panel RTL
+- **59 automated tests** — scanner, output paths, PPTX XML, worker E2E, UI smoke, i18n FA+EN
 
 ---
 
@@ -139,11 +143,11 @@ Assets: `assets/app_icon_256.png`, `assets/pics2ppt_logo.png`, `icon.ico`
 | Layer | Technology |
 |-------|------------|
 | Language | Python 3.11+ |
-| Desktop UI | PySide6 (Qt6), RTL layout |
+| Desktop UI | PySide6 (Qt6), bilingual FA/EN with RTL/LTR |
 | Presentations | python-pptx + lxml (OpenXML) |
 | Images | Pillow (PIL) |
 | Packaging | PyInstaller 6.x — one-file EXE |
-| Tests | pytest / unittest (38 tests) |
+| Tests | pytest / unittest (59 tests) |
 | Platform | Windows 10/11 (primary) |
 
 ---
@@ -239,10 +243,10 @@ flowchart TB
 
 When the scanner finds **more than one job** (typical project-root pattern), Pics2PPT asks where to save files:
 
-| Mode | Persian UI label | Result path |
+| Mode | English UI label | Result path |
 |------|------------------|-------------|
-| **Per-folder** | داخل هر پوشه | `<job.source>\Output_PPTX\<job.name>.pptx` |
-| **Central** | یکجا | `<selected-root>\Output_PPTX\<job.name>.pptx` |
+| **Per-folder** | Inside each folder | `<job.source>\Output_PPTX\<job.name>.pptx` |
+| **Central** | Central | `<selected-root>\Output_PPTX\<job.name>.pptx` |
 
 Single-job runs default to **per-folder** (no dialog).
 
@@ -286,7 +290,7 @@ The scanner (`app/core/scanner.py`) supports four real-world patterns:
 |---|---------|-------------------|--------|
 | 1 | **Flat** | `Topic/` → images only | 1 PPTX, no section dividers |
 | 2 | **Person + topics** | `Person/topic_a/`, `Person/topic_b/`, optional images at person level | 1 grouped PPTX with sections |
-| 3 | **Numbered groups** | `Visit/1/`, `Visit/2/` | Sections labeled «گروه 1», «گروه 2» |
+| 3 | **Numbered groups** | `Visit/1/`, `Visit/2/` | Sections labeled "Group 1", "Group 2" (slide language) |
 | 4 | **Project root** | Root contains multiple person/topic folders | **One PPTX per first-level subfolder** |
 
 ```text
@@ -306,7 +310,7 @@ ProjectRoot/
 Pattern 2 — person + topics
 ─────────────────────────────
 Person/
-├── IMG_001.jpg        → section «تصاویر کلی» (when topics also exist)
+├── IMG_001.jpg        → section "General images" (when topics also exist)
 ├── meetings/
 ├── site_visit/
 └── Output_PPTX/
@@ -315,7 +319,7 @@ Person/
 
 **Ignored during scan:** `Thumbs.db`, `.rar`/`.zip`, custom output folder name (default `Output_PPTX`).
 
-Full diagrams: [docs/FOLDER_PATTERNS.md](docs/FOLDER_PATTERNS.md) · [فارسی](docs/FOLDER_PATTERNS.fa.md)
+Full diagrams: [docs/FOLDER_PATTERNS.md](docs/FOLDER_PATTERNS.md) · [Persian](docs/FOLDER_PATTERNS.fa.md)
 
 ---
 
@@ -324,10 +328,11 @@ Full diagrams: [docs/FOLDER_PATTERNS.md](docs/FOLDER_PATTERNS.md) · [فارسی
 | Aspect | Behavior |
 |--------|----------|
 | Slide size | Widescreen 16:9 (13.33 × 7.5 in) |
-| Text direction | RTL (`rtl="1"` on paragraphs) |
-| Default font | B Nazanin (configurable) |
+| Text direction | Follows **slide language**: RTL for Persian, LTR for English |
+| Default font | Persian slides: B Nazanin; English slides: Calibri (overridable) |
 | Grid | Up to 4 images per slide in 2×2 layout |
 | Section slides | Inserted when `grouped=True` and dividers enabled |
+| Section labels | From i18n catalog (`General images`, `Group N`, …) |
 | Click zoom | Hyperlink from grid image → full detail slide |
 | Hover zoom | Mouse-over action → same detail slide (requires zoom enabled) |
 | Captions | Optional filename stem **below** each image |
@@ -342,7 +347,11 @@ Stored in `%USERPROFILE%\.pics2ppt\settings.json` (legacy paths migrated automat
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `settings_version` | `4` | Schema version; bumps reset theme policy on migration |
+| `settings_version` | `5` | Schema version |
+| `ui_language` | OS locale or `fa` (migration) | UI language: `fa` · `en` |
+| `slide_language_mode` | `same_as_ui` | `same_as_ui` or `fixed` |
+| `slide_language` | follows UI or `fa` (migration) | PPTX labels/font when mode is `fixed` |
+| `ui_language_confirmed` | `true` after first pick | First-run picker done; `false` only on brand-new install |
 | `theme` | `dark_cyan` | `dark_cyan` · `dark_purple` · `light` |
 | `font_size` | `medium` | UI typography scale |
 | `output_folder_name` | `Output_PPTX` | Subfolder name for generated files |
@@ -364,8 +373,9 @@ Stored in `%USERPROFILE%\.pics2ppt\settings.json` (legacy paths migrated automat
 
 | Data | Persists across restarts? |
 |------|---------------------------|
-| Theme, JPEG quality, output folder name, zoom toggles | **Yes** |
+| Theme, JPEG quality, output folder name, zoom toggles, UI/slide language | **Yes** |
 | Window geometry | **Yes** |
+| First-run language confirmation (`ui_language.json`) | **Yes** — separate from session inputs |
 | Last input folder, footer text, logo paths | **No** — cleared on every launch |
 | Output placement choice | **No** — asked each multi-job build |
 
@@ -449,9 +459,9 @@ Or with unittest:
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
-Coverage areas: scanner classification, output placement paths, PPTX OpenXML (hover links), worker end-to-end, settings roundtrip, themes, bootstrap SIGINT, PNG RGBA pipeline, native help panel RTL.
+Coverage areas: scanner classification, output placement paths, PPTX OpenXML (hover links), worker end-to-end, settings roundtrip, themes, bootstrap SIGINT, PNG RGBA pipeline, help panel, i18n FA+EN.
 
-**Current count: 38 passing tests.**
+**Current count: 59 passing tests.**
 
 ---
 
@@ -478,10 +488,11 @@ Pics2PPT/
 ├── app/
 │   ├── bootstrap.py        # HiDPI, Ctrl+C handler
 │   ├── resources.py        # Asset paths (dev + frozen)
+│   ├── i18n/               # FA+EN catalogs, help content, locale detect
 │   ├── core/               # scanner, builder, worker, output_paths, models
-│   ├── services/           # settings.json persistence
-│   └── ui/                 # PySide6 windows, themes, help_panel
-├── tests/                  # pytest/unittest suite (38 tests)
+│   ├── services/           # settings.json + ui_language.json prefs
+│   └── ui/                 # PySide6 windows, themes, language_dialog, help_panel
+├── tests/                  # pytest/unittest suite (59 tests)
 └── docs/                   # Extended documentation (EN + FA)
 ```
 
@@ -500,7 +511,7 @@ Pics2PPT/
 | EXE won't start | AV quarantine | Allowlist or rebuild locally with `build.bat` |
 | Settings not saving | Permissions on profile path | Check write access to `%USERPROFILE%\.pics2ppt\` |
 
-More: [docs/FAQ.md](docs/FAQ.md) · [فارسی](docs/FAQ.fa.md)
+More: [docs/FAQ.md](docs/FAQ.md) · [Persian](docs/FAQ.fa.md)
 
 ---
 
@@ -534,20 +545,23 @@ Only if you choose **Replace** in the conflict dialog. **New version** keeps pri
 **Do my folder path and footer persist after restart?**  
 No. Only Settings-tab defaults and appearance persist. Home-tab inputs reset each launch.
 
+**Will the language picker appear every time I open the app?**  
+No. After the first choice it is stored in `%USERPROFILE%\.pics2ppt\ui_language.json` and is not asked again.
+
 **Hover zoom does not work in PowerPoint Online.**  
 Hover actions are a desktop PowerPoint feature; click zoom still works everywhere.
 
 **Does it upload my photos anywhere?**  
 No. Fully offline. No network calls.
 
-More: [docs/FAQ.md](docs/FAQ.md) · [فارسی](docs/FAQ.fa.md)
+More: [docs/FAQ.md](docs/FAQ.md) · [Persian](docs/FAQ.fa.md)
 
 ---
 
 ## Documentation index
 
-| Document | English | فارسی |
-|----------|---------|-------|
+| Document | English | Persian |
+|----------|---------|---------|
 | Main readme | [README.md](README.md) | [README.fa.md](README.fa.md) |
 | User guide | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | [docs/USER_GUIDE.fa.md](docs/USER_GUIDE.fa.md) |
 | Folder patterns | [docs/FOLDER_PATTERNS.md](docs/FOLDER_PATTERNS.md) | [docs/FOLDER_PATTERNS.fa.md](docs/FOLDER_PATTERNS.fa.md) |

@@ -1,6 +1,6 @@
 # Contributing to Pics2PPT
 
-[فارسی](CONTRIBUTING.fa.md)
+[Persian](CONTRIBUTING.fa.md)
 
 Thank you for considering a contribution. This project is maintained by **Ali Rashidi** and welcomes bug reports, documentation improvements, and tested feature PRs.
 

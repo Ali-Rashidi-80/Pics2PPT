@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFrame,
@@ -14,7 +13,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from app import APP_NAME, APP_TAGLINE_FA, __version__
+from app import APP_NAME, __version__
+from app.i18n import t, ui_language
 from app.resources import logo_png
 from app.ui.help_panel import build_help_panel
 from app.ui.layout_direction import ALIGN_START
@@ -32,12 +32,8 @@ class AboutPage(QWidget):
 
     def _build_ui(self) -> None:
         root = make_page_layout(self)
-        root.addWidget(
-            make_page_header(
-                "درباره و آموزش",
-                "راهنمای استفاده، الگوهای ساختار پوشه و قابلیت‌های برنامه.",
-            )
-        )
+        self.page_header = make_page_header("", "")
+        root.addWidget(self.page_header)
 
         hero = QFrame()
         hero.setObjectName("AboutHero")
@@ -59,23 +55,21 @@ class AboutPage(QWidget):
         title = QLabel(APP_NAME)
         title.setObjectName("AboutTitle")
         title.setAlignment(ALIGN_START)
-        tagline = QLabel(f"{APP_TAGLINE_FA} — فارسی، RTL، شبکه ۲×۲")
-        tagline.setObjectName("AboutTagline")
-        tagline.setWordWrap(True)
-        tagline.setAlignment(ALIGN_START)
-
-        version = QLabel(f"نسخه {__version__}")
-        version.setObjectName("AboutVersion")
-        version.setAlignment(ALIGN_START)
-
-        creator = QLabel("سازنده: Ali Rashidi")
-        creator.setObjectName("AboutCreator")
-        creator.setAlignment(ALIGN_START)
+        self.tagline = QLabel()
+        self.tagline.setObjectName("AboutTagline")
+        self.tagline.setWordWrap(True)
+        self.tagline.setAlignment(ALIGN_START)
+        self.version_label = QLabel()
+        self.version_label.setObjectName("AboutVersion")
+        self.version_label.setAlignment(ALIGN_START)
+        self.creator_label = QLabel()
+        self.creator_label.setObjectName("AboutCreator")
+        self.creator_label.setAlignment(ALIGN_START)
 
         text_col.addWidget(title)
-        text_col.addWidget(tagline)
-        text_col.addWidget(version)
-        text_col.addWidget(creator)
+        text_col.addWidget(self.tagline)
+        text_col.addWidget(self.version_label)
+        text_col.addWidget(self.creator_label)
         hero_layout.addLayout(text_col, stretch=1)
         root.addWidget(hero)
 
@@ -91,17 +85,35 @@ class AboutPage(QWidget):
         help_layout.addWidget(self.help_scroll, stretch=1)
         root.addWidget(help_card, stretch=1)
 
-        refresh = QPushButton("بروزرسانی راهنما")
-        refresh.setObjectName("GhostBtn")
-        refresh.clicked.connect(self.refresh_content)
-        goto_settings = QPushButton("رفتن به تنظیمات")
-        goto_settings.setObjectName("GhostBtn")
-        goto_settings.clicked.connect(lambda: self.parent_window.change_page(1))
-        goto_home = QPushButton("رفتن به ساخت گزارش")
-        goto_home.setObjectName("GhostBtn")
-        goto_home.clicked.connect(lambda: self.parent_window.change_page(0))
-        root.addWidget(make_responsive_button_bar(refresh, goto_settings, goto_home))
+        self.refresh_btn = QPushButton()
+        self.refresh_btn.setObjectName("GhostBtn")
+        self.refresh_btn.clicked.connect(self.refresh_content)
+        self.goto_settings_btn = QPushButton()
+        self.goto_settings_btn.setObjectName("GhostBtn")
+        self.goto_settings_btn.clicked.connect(lambda: self.parent_window.change_page(1))
+        self.goto_home_btn = QPushButton()
+        self.goto_home_btn.setObjectName("GhostBtn")
+        self.goto_home_btn.clicked.connect(lambda: self.parent_window.change_page(0))
+        self.action_bar = make_responsive_button_bar(
+            self.refresh_btn, self.goto_settings_btn, self.goto_home_btn
+        )
+        root.addWidget(self.action_bar)
+        self.retranslate_ui()
+
+    def apply_direction(self, rtl: bool) -> None:
+        self.help_scroll.apply_direction(rtl)
+
+    def retranslate_ui(self) -> None:
+        self.page_header.title_label.setText(t("about.title"))  # type: ignore[attr-defined]
+        self.page_header.subtitle_label.setText(t("about.subtitle"))  # type: ignore[attr-defined]
+        self.tagline.setText(f"{t('window.tagline')} — {t('about.tagline_extra')}")
+        self.version_label.setText(t("about.version", version=__version__))
+        self.creator_label.setText(t("about.creator"))
+        self.refresh_btn.setText(t("about.btn.refresh"))
+        self.goto_settings_btn.setText(t("about.btn.settings"))
+        self.goto_home_btn.setText(t("about.btn.home"))
 
     def refresh_content(self) -> None:
         theme = self.parent_window.settings.get("theme", "dark_cyan")
-        self.help_scroll.setWidget(build_help_panel(theme, __version__))
+        lang = ui_language()
+        self.help_scroll.setWidget(build_help_panel(theme, __version__, lang=lang))

@@ -1,4 +1,4 @@
-"""RTL-aware scroll areas and responsive page helpers."""
+"""RTL/LTR-aware scroll areas and responsive page helpers."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 
 
 class RtlScrollArea(QScrollArea):
-    """RTL content with vertical scrollbar on the right (Persian desktop convention)."""
+    """Scroll area with direction-aware content (RTL or LTR)."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -16,36 +16,51 @@ class RtlScrollArea(QScrollArea):
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self._apply_rtl()
+        self._rtl = True
+        self.apply_direction(True)
 
-    def _apply_rtl(self) -> None:
-        # Keep chrome LTR so the vertical bar stays on the right edge.
-        self.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.viewport().setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+    def apply_direction(self, rtl: bool) -> None:
+        self._rtl = rtl
+        if rtl:
+            self.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+            self.viewport().setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        else:
+            direction = Qt.LayoutDirection.LeftToRight
+            self.setLayoutDirection(direction)
+            self.viewport().setLayoutDirection(direction)
         bar = self.verticalScrollBar()
         if bar is not None:
             bar.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
     def setWidget(self, widget: QWidget | None) -> None:  # noqa: N802 — Qt API
         if widget is not None:
-            widget.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+            widget.setLayoutDirection(
+                Qt.LayoutDirection.RightToLeft if self._rtl else Qt.LayoutDirection.LeftToRight
+            )
             widget.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         super().setWidget(widget)
-        self._apply_rtl()
+        self.apply_direction(self._rtl)
 
     def resizeEvent(self, event) -> None:  # noqa: N802 — Qt API
         super().resizeEvent(event)
-        self._apply_rtl()
+        self.apply_direction(self._rtl)
 
     def showEvent(self, event) -> None:  # noqa: N802 — Qt API
         super().showEvent(event)
-        self._apply_rtl()
+        self.apply_direction(self._rtl)
 
 
-def configure_rtl_scroll(area: QScrollArea) -> None:
-    """RTL scrollable content; scrollbar remains on the right."""
-    area.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-    area.viewport().setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+def configure_rtl_scroll(area: QScrollArea, *, rtl: bool = True) -> None:
+    """Configure scrollable content direction; scrollbar stays on the right."""
+    if isinstance(area, RtlScrollArea):
+        area.apply_direction(rtl)
+        return
+    if rtl:
+        area.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        area.viewport().setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+    else:
+        area.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        area.viewport().setLayoutDirection(Qt.LayoutDirection.LeftToRight)
     bar = area.verticalScrollBar()
     if bar is not None:
         bar.setLayoutDirection(Qt.LayoutDirection.LeftToRight)

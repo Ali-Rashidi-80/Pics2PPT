@@ -1,6 +1,6 @@
 # PPTX Gap Audit — Web & Documentation Cross-Check
 
-[فارسی](PPTX_GAP_AUDIT.fa.md) · [Roadmap](ROADMAP.md) · [Capabilities](PPTX_CAPABILITIES.md)
+[Persian](PPTX_GAP_AUDIT.fa.md) · [Roadmap](ROADMAP.md) · [Capabilities](PPTX_CAPABILITIES.md)
 
 **Purpose:** Verify the Hybrid Smart roadmap against official python-pptx docs, production articles, OpenXML references, and known limitations. Last reviewed: 2026-08-23.
 

@@ -1,6 +1,6 @@
 # Architecture
 
-[فارسی](ARCHITECTURE.fa.md) · [Back to README](../README.md)
+[Persian](ARCHITECTURE.fa.md) · [Back to README](../README.md)
 
 Technical overview of **Pics2PPT** for developers and maintainers.
 
@@ -15,7 +15,7 @@ Technical overview of **Pics2PPT** for developers and maintainers.
 | PPTX | python-pptx + lxml (OpenXML) |
 | Images | Pillow (PIL) |
 | Packaging | PyInstaller 6.x (one-file EXE) |
-| Tests | unittest / pytest (38 tests) |
+| Tests | unittest / pytest (59 tests) |
 
 ---
 
@@ -32,10 +32,16 @@ flowchart TB
         HP[home_page.py]
         SP[settings_page.py]
         AP[about_page.py]
+        LD[language_dialog.py]
         TH[theme.py]
     end
     subgraph Services
         SET[settings.py]
+        LP[language_prefs.py]
+    end
+    subgraph I18n["app/i18n"]
+        CAT[catalogs FA/EN]
+        HC[help_content]
     end
     subgraph Core["app/core"]
         SC[scanner.py]
@@ -46,14 +52,18 @@ flowchart TB
     end
     MAIN --> MW
     ENTRY --> MAIN
-    MW --> HP & SP & AP
+    MW --> HP & SP & AP & LD
     HP --> WK
     HP --> SC
-    WK --> SC & PB & IP
-    PB --> MD & IP
     SP --> SET
+    SET --> LP
+    MW --> CAT
     MW --> SET
     MW --> TH
+    WK --> SC & PB & IP
+    PB --> MD & IP
+    PB --> CAT
+    AP --> HC
 ```
 
 ---
@@ -85,9 +95,9 @@ flowchart TB
 
 - Builds `Presentation` from `PresentationJob` + `BuildSettings`.
 - Layout constants for 16:9 grid (header, 2×2, footer bands).
-- RTL paragraph XML (`rtl="1"`).
+- Paragraph direction from slide language (RTL Persian / LTR English).
 - Click hyperlinks + hover `hlinkHover` OpenXML injection.
-- Section divider slides when grouped.
+- Section divider slides when grouped; labels via `t_slide()`.
 
 ### `app/core/image_processor.py`
 
@@ -98,19 +108,32 @@ flowchart TB
 ### `app/core/models.py`
 
 - `BuildSettings` dataclass with `from_dict()` clamps.
+- Includes `ui_language` and `slide_language`; font defaults follow slide language.
+
+### `app/i18n/`
+
+- `catalog_fa.py` / `catalog_en.py` — UI, worker, and PPTX string catalogs.
+- `t()` / `t_slide()` / `set_ui_language()` / `set_build_slide_language()`.
+- `help_content.py` — structured About help sections.
+- `locale_detect.py` — OS locale → suggested `fa` or `en`.
 
 ### `app/services/settings.py`
 
-- JSON at `%USERPROFILE%\.pics2ppt\settings.json`.
+- JSON at `%USERPROFILE%\.pics2ppt\settings.json` (schema v5).
+- Language keys: `ui_language`, `slide_language_mode`, `slide_language`, `ui_language_confirmed`.
 - Migrates legacy `.slidereport`, `.gen_powerpoint`.
 - Window geometry persistence.
 - Clears session input keys (`last_input_dir`, footer, logos) on load/save.
 
+### `app/services/language_prefs.py`
+
+- Durable first-run choice in `ui_language.json` (survives settings rewrites).
+
 ### `app/ui/`
 
-- RTL layout direction globally.
-- Three themes via dynamic QSS (`theme.py`).
-- Native RTL help panel (`help_panel.py`) — not HTML.
+- Bilingual UI with live RTL/LTR layout direction.
+- First-run `language_dialog.py`; three themes via dynamic QSS (`theme.py`).
+- Native help panel (`help_panel.py`) — FA/EN, not HTML.
 
 ### `app/bootstrap.py`
 

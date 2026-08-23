@@ -37,9 +37,19 @@ FOOTER_TOP = Inches(6.8)
 FOOTER_BOTTOM = Inches(7.5)
 
 
-def set_rtl(paragraph) -> None:
+from app.i18n import set_build_slide_language, t_slide
+
+
+def set_rtl(paragraph, *, rtl: bool = True) -> None:
     pPr = paragraph._p.get_or_add_pPr()
-    pPr.set("rtl", "1")
+    if rtl:
+        pPr.set("rtl", "1")
+    elif pPr.get("rtl") is not None:
+        del pPr.attrib["rtl"]
+
+
+def _paragraph_rtl(settings: BuildSettings) -> bool:
+    return settings.slide_language != "en"
 
 
 def _style_run(run, settings: BuildSettings, *, size_pt: float, bold: bool = False, color: RGBColor = TITLE_COLOR) -> None:
@@ -56,13 +66,16 @@ def _style_run(run, settings: BuildSettings, *, size_pt: float, bold: bool = Fal
     rPr.append(cs)
 
 
-def _add_textbox(slide, left, top, width, height, text: str, settings: BuildSettings, *, size_pt: float, bold: bool = False, color: RGBColor = TITLE_COLOR, align=PP_ALIGN.RIGHT):
+def _add_textbox(slide, left, top, width, height, text: str, settings: BuildSettings, *, size_pt: float, bold: bool = False, color: RGBColor = TITLE_COLOR, align=None):
+    rtl = _paragraph_rtl(settings)
+    if align is None:
+        align = PP_ALIGN.RIGHT if rtl else PP_ALIGN.LEFT
     shape = slide.shapes.add_textbox(left, top, width, height)
     tf = shape.text_frame
     tf.word_wrap = True
     p = tf.paragraphs[0]
     p.alignment = align
-    set_rtl(p)
+    set_rtl(p, rtl=rtl)
     run = p.add_run()
     run.text = text
     _style_run(run, settings, size_pt=size_pt, bold=bold, color=color)
@@ -257,7 +270,18 @@ def _add_section_divider(prs, blank, settings, *, person_title, section_name, se
     slide = prs.slides.add_slide(blank)
     _draw_header(slide, person_title, settings, logo_right, logo_left, slide_width)
     _draw_footer(slide, footer_text, settings, slide_width)
-    _add_textbox(slide, MARGIN_X, Emu(int(2.6 * 914400)), Emu(int(float(slide_width) - 2 * float(MARGIN_X))), Emu(int(0.5 * 914400)), f"بخش {section_index} از {section_total}", settings, size_pt=14, color=MUTED_COLOR, align=PP_ALIGN.CENTER)
+    _add_textbox(
+        slide,
+        MARGIN_X,
+        Emu(int(2.6 * 914400)),
+        Emu(int(float(slide_width) - 2 * float(MARGIN_X))),
+        Emu(int(0.5 * 914400)),
+        t_slide("pptx.section.n_of_m", n=section_index, m=section_total),
+        settings,
+        size_pt=14,
+        color=MUTED_COLOR,
+        align=PP_ALIGN.CENTER,
+    )
     _add_textbox(slide, MARGIN_X, Emu(int(3.2 * 914400)), Emu(int(float(slide_width) - 2 * float(MARGIN_X))), Emu(int(1.2 * 914400)), section_name, settings, size_pt=32, bold=True, color=ACCENT_COLOR, align=PP_ALIGN.CENTER)
 
 
@@ -265,14 +289,14 @@ def _add_grid_slides(prs, blank, images, settings, *, title, subtitle, footer_te
     per = max(1, min(4, settings.images_per_slide))
     for i in range(0, len(images), per):
         if should_cancel and should_cancel():
-            raise InterruptedError("عملیات توسط کاربر لغو شد")
+            raise InterruptedError(t_slide("pptx.err.cancelled"))
         chunk = images[i : i + per]
         slide = prs.slides.add_slide(blank)
         _draw_header(slide, title, settings, logo_right, logo_left, slide_width, subtitle=subtitle)
         _draw_footer(slide, footer_text, settings, slide_width)
         for cell_index, img_path in enumerate(chunk):
             if should_cancel and should_cancel():
-                raise InterruptedError("عملیات توسط کاربر لغو شد")
+                raise InterruptedError(t_slide("pptx.err.cancelled"))
             try:
                 _add_image_cell(
                     slide,
@@ -289,7 +313,7 @@ def _add_grid_slides(prs, blank, images, settings, *, title, subtitle, footer_te
                     slide_height=slide_height,
                 )
             except Exception as exc:
-                raise RuntimeError(f"خطا در پردازش تصویر {img_path.name}: {exc}") from exc
+                raise RuntimeError(t_slide("pptx.err.image", name=img_path.name, exc=exc)) from exc
 
 
 def build_presentation_from_job(
@@ -300,6 +324,7 @@ def build_presentation_from_job(
     should_cancel: Callable[[], bool] | None = None,
 ) -> Path:
     cfg = settings or BuildSettings()
+    set_build_slide_language(cfg.slide_language)
     prs = Presentation()
     slide_width = Inches(cfg.slide_width_inches)
     slide_height = Inches(cfg.slide_height_inches)
@@ -312,7 +337,7 @@ def build_presentation_from_job(
 
     for section_index, group in enumerate(job.groups, start=1):
         if should_cancel and should_cancel():
-            raise InterruptedError("عملیات توسط کاربر لغو شد")
+            raise InterruptedError(t_slide("pptx.err.cancelled"))
         if use_sections:
             _add_section_divider(
                 prs,

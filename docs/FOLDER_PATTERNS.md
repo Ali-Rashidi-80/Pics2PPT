@@ -1,6 +1,6 @@
 # Folder Layout Patterns
 
-[فارسی](FOLDER_PATTERNS.fa.md) · [Back to README](../README.md)
+[Persian](FOLDER_PATTERNS.fa.md) · [Back to README](../README.md)
 
 Reference for how **Pics2PPT** classifies directories into presentation jobs.
 
@@ -43,7 +43,7 @@ Sections → none (grouped=false)
 
 ```text
 Consultant_A/
-├── overview_01.jpg          ← «تصاویر کلی» section (if topics exist)
+├── overview_01.jpg          ← "General images" section (if topics exist)
 ├── meetings/
 │   ├── m1.jpg
 │   └── m2.jpg
@@ -51,7 +51,7 @@ Consultant_A/
     └── s1.jpg
 
 Output → Consultant_A/Output_PPTX/Consultant_A.pptx
-Sections → تصاویر کلی, meetings, site_photos
+Sections → General images, meetings, site_photos
 Divider slides → yes (when enabled)
 ```
 
@@ -69,7 +69,7 @@ FieldTrip/
 └── 2/
     └── c.jpg
 
-Section labels → «گروه 1», «گروه 2»
+Section labels → "Group 1", "Group 2" (English slide language)
 ```
 
 Nested numeric example:
@@ -77,8 +77,8 @@ Nested numeric example:
 ```text
 Branch/
 └── 3/
-    ├── 1/  → section «گروه 3 — گروه 1»
-    └── 2/  → section «گروه 3 — گروه 2»
+    ├── 1/  → section "Group 3 — Group 1"
+    └── 2/  → section "Group 3 — Group 2"
 ```
 
 ---

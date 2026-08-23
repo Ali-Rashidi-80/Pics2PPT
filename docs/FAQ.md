@@ -1,6 +1,6 @@
 # Frequently Asked Questions (FAQ)
 
-[فارسی](FAQ.fa.md) · [Back to README](../README.md)
+[Persian](FAQ.fa.md) · [Back to README](../README.md)
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### What does Pics2PPT do?
 
-It converts folders of photos into PowerPoint presentation files with a 2×2 grid layout, Persian RTL text support, and optional click/hover zoom slides.
+It converts folders of photos into PowerPoint presentation files with a 2×2 grid layout, bilingual UI (Persian / English), optional Persian RTL or English LTR slide text, and optional click/hover zoom slides.
 
 ### Is it free?
 
@@ -100,7 +100,8 @@ Enable **section dividers** in Settings. Job must be `grouped` (multiple section
 
 Legacy paths (`.slidereport`, `.gen_powerpoint`) migrate automatically.
 
-Current schema: `settings_version: 4`.
+Current schema: `settings_version: 5` (UI/slide language keys + `ui_language_confirmed`).
+Language choice also lives in `%USERPROFILE%\.pics2ppt\ui_language.json`.
 
 ### Do folder path and footer persist after restart?
 

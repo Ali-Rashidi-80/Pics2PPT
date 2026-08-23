@@ -6,6 +6,8 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
+from app.i18n import set_build_slide_language, t
+
 from .models import BuildSettings
 from .output_paths import ConflictMode, OutputPlacement, job_output_file, resolve_output_path
 from .pptx_builder import build_presentation_from_job
@@ -34,6 +36,7 @@ class PresentationWorker(QRunnable):
         self.settings = settings
         self.conflict_mode = conflict_mode
         self.output_placement = output_placement
+        self._ui_lang = settings.ui_language
         self.signals = WorkerSignals()
         self.is_cancelled = False
         self.setAutoDelete(True)
@@ -44,55 +47,70 @@ class PresentationWorker(QRunnable):
     def _cancelled(self) -> bool:
         return self.is_cancelled
 
+    def _log(self, key: str, **kwargs: object) -> None:
+        self.signals.log.emit(t(key, lang=self._ui_lang, **kwargs))
+
+    def _err(self, key: str, **kwargs: object) -> None:
+        self.signals.error.emit(t(key, lang=self._ui_lang, **kwargs))
+
     @Slot()
     def run(self) -> None:
         browse_dir = ""
+        lang = self._ui_lang
         try:
-            self.signals.log.emit(f"شروع پیمایش: {self.root_path}")
+            set_build_slide_language(self.settings.slide_language)
+            self._log("worker.log.scan_start", path=self.root_path)
             folder_name = (self.settings.output_folder_name or "Output_PPTX").strip() or "Output_PPTX"
             skip_dirs = {folder_name, "Output_PPTX"}
             jobs = scan_project_folders(self.root_path, skip_dir_names=skip_dirs)
             if not jobs:
-                self.signals.error.emit(
-                    "هیچ تصویر معتبری (.jpg / .jpeg / .png) در این پوشه یا زیرپوشه‌هایش یافت نشد."
-                )
+                self._err("worker.err.no_images")
                 self.signals.finished.emit(False, "")
                 return
 
             if self.output_placement == "per_folder":
                 browse_dir = str(self.root_path)
-                placement_label = "داخل هر پوشه (Output_PPTX جداگانه)"
+                placement_label = t("worker.log.placement.per_folder", lang=lang)
             else:
                 browse_dir = str(self.root_path / folder_name)
                 Path(browse_dir).mkdir(parents=True, exist_ok=True)
-                placement_label = f"یکجا در {folder_name}"
+                placement_label = t("worker.log.placement.central", lang=lang, folder=folder_name)
 
-            self.signals.log.emit(f"محل خروجی: {placement_label}")
-            self.signals.log.emit(f"تعداد فایل PPTX: {len(jobs)}")
+            self._log("worker.log.output_location", label=placement_label)
+            self._log("worker.log.pptx_count", count=len(jobs))
 
             if self.conflict_mode == "version":
-                self.signals.log.emit("حالت خروجی: ساخت نسخهٔ جدید (بدون جایگزینی)")
+                self._log("worker.log.mode.version")
             else:
-                self.signals.log.emit("حالت خروجی: جایگزینی فایل‌های قبلی")
+                self._log("worker.log.mode.replace")
 
             total = len(jobs)
             for index, job in enumerate(jobs):
                 if self.is_cancelled:
-                    self.signals.log.emit("عملیات لغو شد.")
+                    self._log("worker.log.cancelled")
                     self.signals.finished.emit(False, browse_dir)
                     return
 
-                mode = "گروه‌بندی موضوعی" if job.grouped else "ساده"
-                sections = "، ".join(f"«{g.name}» ({len(g.images)})" for g in job.groups)
-                self.signals.log.emit(f"[{index + 1}/{total}] «{job.name}» — {mode}")
-                self.signals.log.emit(f"    بخش‌ها: {sections}")
+                mode_key = "worker.log.mode.grouped" if job.grouped else "worker.log.mode.simple"
+                sections = ", ".join(
+                    t("worker.log.section_item", lang=lang, name=g.name, count=len(g.images))
+                    for g in job.groups
+                )
+                self._log(
+                    "worker.log.job",
+                    index=index + 1,
+                    total=total,
+                    name=job.name,
+                    mode=t(mode_key, lang=lang),
+                )
+                self._log("worker.log.sections", sections=sections)
 
                 base = job_output_file(job, self.root_path, folder_name, self.output_placement)
                 base.parent.mkdir(parents=True, exist_ok=True)
                 out_file = resolve_output_path(base, self.conflict_mode)
                 if out_file.name != base.name:
-                    self.signals.log.emit(f"    نام خروجی: {out_file.name}")
-                self.signals.log.emit(f"    مسیر: {out_file.parent}")
+                    self._log("worker.log.output_name", name=out_file.name)
+                self._log("worker.log.output_path", path=out_file.parent)
                 try:
                     build_presentation_from_job(
                         job,
@@ -101,22 +119,22 @@ class PresentationWorker(QRunnable):
                         should_cancel=self._cancelled,
                     )
                     self.signals.folder_done.emit(str(out_file))
-                    self.signals.log.emit(f"ذخیره شد: {out_file.name}")
+                    self._log("worker.log.saved", name=out_file.name)
                 except InterruptedError:
-                    self.signals.log.emit("عملیات لغو شد.")
+                    self._log("worker.log.cancelled")
                     self.signals.finished.emit(False, browse_dir)
                     return
                 except Exception as exc:
-                    self.signals.error.emit(f"خطا در «{job.name}»: {exc}")
+                    self._err("worker.err.job", name=job.name, exc=exc)
 
                 self.signals.progress.emit(int(((index + 1) / total) * 100))
 
             if self.is_cancelled:
                 self.signals.finished.emit(False, browse_dir)
             else:
-                self.signals.log.emit("تمام فایل‌ها با موفقیت ساخته شدند.")
+                self._log("worker.log.all_done")
                 self.signals.progress.emit(100)
                 self.signals.finished.emit(True, browse_dir)
         except Exception as exc:
-            self.signals.error.emit(f"خطای کلی: {exc}")
+            self._err("worker.err.general", exc=exc)
             self.signals.finished.emit(False, browse_dir)

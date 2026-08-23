@@ -1,6 +1,6 @@
 # Documentation Index
 
-[فارسی](INDEX.fa.md) · [Back to README](../README.md)
+[Persian](INDEX.fa.md) · [Back to README](../README.md)
 
 Central index for all **Pics2PPT** documentation. English is the default language; Persian (`.fa.md`) mirrors follow the same structure.
 
@@ -11,9 +11,9 @@ Central index for all **Pics2PPT** documentation. English is the default languag
 | Document | Description |
 |----------|-------------|
 | [README.md](../README.md) | Project overview, quick start, feature summary |
-| [README.fa.md](../README.fa.md) | نمای کلی فارسی |
+| [README.fa.md](../README.fa.md) | Persian overview |
 | [USER_GUIDE.md](USER_GUIDE.md) | Step-by-step for end users |
-| [USER_GUIDE.fa.md](USER_GUIDE.fa.md) | راهنمای گام‌به‌گام فارسی |
+| [USER_GUIDE.fa.md](USER_GUIDE.fa.md) | Persian step-by-step guide |
 
 ---
 
@@ -22,9 +22,9 @@ Central index for all **Pics2PPT** documentation. English is the default languag
 | Document | Description |
 |----------|-------------|
 | [FOLDER_PATTERNS.md](FOLDER_PATTERNS.md) | How folder layouts map to PPTX jobs |
-| [FOLDER_PATTERNS.fa.md](FOLDER_PATTERNS.fa.md) | الگوهای پوشه |
+| [FOLDER_PATTERNS.fa.md](FOLDER_PATTERNS.fa.md) | Persian folder-pattern reference |
 | [FAQ.md](FAQ.md) | Common questions and honest limitations |
-| [FAQ.fa.md](FAQ.fa.md) | سؤالات متداول |
+| [FAQ.fa.md](FAQ.fa.md) | Persian FAQ |
 
 ---
 
@@ -33,15 +33,15 @@ Central index for all **Pics2PPT** documentation. English is the default languag
 | Document | Description |
 |----------|-------------|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, data flow, threading |
-| [ARCHITECTURE.fa.md](ARCHITECTURE.fa.md) | معماری |
+| [ARCHITECTURE.fa.md](ARCHITECTURE.fa.md) | Persian architecture notes |
 | [BUILD.md](BUILD.md) | Single-file EXE build (`Pics2PPT.exe`) |
-| [BUILD.fa.md](BUILD.fa.md) | ساخت EXE |
+| [BUILD.fa.md](BUILD.fa.md) | Persian build guide |
 | [ROADMAP.md](ROADMAP.md) | Hybrid Smart development roadmap |
-| [ROADMAP.fa.md](ROADMAP.fa.md) | نقشه راه Hybrid Smart |
+| [ROADMAP.fa.md](ROADMAP.fa.md) | Persian roadmap |
 | [PPTX_CAPABILITIES.md](PPTX_CAPABILITIES.md) | python-pptx usage map and honest limits |
-| [PPTX_CAPABILITIES.fa.md](PPTX_CAPABILITIES.fa.md) | قابلیت‌ها و محدودیت‌ها |
+| [PPTX_CAPABILITIES.fa.md](PPTX_CAPABILITIES.fa.md) | Persian capabilities notes |
 | [PPTX_GAP_AUDIT.md](PPTX_GAP_AUDIT.md) | Web/docs cross-check — 14 gaps mapped |
-| [PPTX_GAP_AUDIT.fa.md](PPTX_GAP_AUDIT.fa.md) | ممیزی شکاف منابع وب |
+| [PPTX_GAP_AUDIT.fa.md](PPTX_GAP_AUDIT.fa.md) | Persian gap audit |
 
 ---
 
@@ -50,9 +50,9 @@ Central index for all **Pics2PPT** documentation. English is the default languag
 | Document | Description |
 |----------|-------------|
 | [CHANGELOG.md](../CHANGELOG.md) | Version history |
-| [CHANGELOG.fa.md](../CHANGELOG.fa.md) | تاریخچه تغییرات |
+| [CHANGELOG.fa.md](../CHANGELOG.fa.md) | Persian changelog |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | How to contribute |
-| [CONTRIBUTING.fa.md](../CONTRIBUTING.fa.md) | مشارکت |
+| [CONTRIBUTING.fa.md](../CONTRIBUTING.fa.md) | Persian contributing guide |
 | [SECURITY.md](../SECURITY.md) | Vulnerability reporting |
 | [LICENSE](../LICENSE) | MIT License |
 
@@ -74,3 +74,4 @@ Central index for all **Pics2PPT** documentation. English is the default languag
 - **`README.md`** — English (GitHub default landing page)
 - **`*.fa.md`** — Persian (`fa` = BCP 47 for Persian)
 - Code blocks, commands, paths, and badge URLs stay **untranslated** in all locales
+- English docs use English UI labels (e.g. *Inside each folder*, *Group 1*); Persian docs use Persian UI labels

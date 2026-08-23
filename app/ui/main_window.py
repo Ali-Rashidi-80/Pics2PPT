@@ -17,10 +17,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from app import APP_NAME, APP_TAGLINE_FA, __version__
+from app import APP_NAME, __version__
+from app.i18n import is_rtl, set_ui_language, t
+from app.i18n.locale_detect import detect, normalize as normalize_lang
 from app.resources import logo_png
 from app.services.settings import SettingsManager
 from app.ui.fonts import configure_app_typography
+from app.ui.language_dialog import prompt_ui_language
 from app.ui.layout_direction import ALIGN_START, apply_layout_direction
 from app.ui.pages.about_page import AboutPage
 from app.ui.pages.home_page import HomePage
@@ -29,20 +32,15 @@ from app.ui.theme import build_stylesheet
 
 
 class MainWindow(QMainWindow):
-    NAV_ITEMS = [
-        ("◈  ساخت گزارش", 0),
-        ("◈  تنظیمات", 1),
-        ("◈  درباره و آموزش", 2),
-    ]
+    NAV_KEYS = ("nav.home", "nav.settings", "nav.about")
 
     def __init__(self) -> None:
         super().__init__()
         self.settings = SettingsManager()
         self._geometry_restored = False
-        self.setWindowTitle(f"{APP_NAME} — {APP_TAGLINE_FA}")
+        self._language_prompt_scheduled = False
         self.setMinimumSize(880, 700)
         self.resize(960, 780)
-        self.setLayoutDirection(Qt.RightToLeft)
 
         self._build_ui()
         self._setup_shortcuts()
@@ -64,7 +62,6 @@ class MainWindow(QMainWindow):
             self.home_page._cancel()
 
     def request_shutdown(self) -> None:
-        """Graceful shutdown: cancel worker, save settings, close window."""
         if hasattr(self, "home_page") and self.home_page.worker:
             self.home_page.worker.cancel()
         self.close()
@@ -100,11 +97,11 @@ class MainWindow(QMainWindow):
         brand = QLabel(APP_NAME)
         brand.setObjectName("BrandTitle")
         brand.setAlignment(ALIGN_START)
-        sub = QLabel("عکس‌ها → پاورپوینت")
-        sub.setObjectName("BrandSub")
-        sub.setAlignment(ALIGN_START)
+        self.brand_sub = QLabel()
+        self.brand_sub.setObjectName("BrandSub")
+        self.brand_sub.setAlignment(ALIGN_START)
         brand_col.addWidget(brand)
-        brand_col.addWidget(sub)
+        brand_col.addWidget(self.brand_sub)
         brand_row.addWidget(logo)
         brand_row.addLayout(brand_col, stretch=1)
         sb_layout.addLayout(brand_row)
@@ -113,9 +110,8 @@ class MainWindow(QMainWindow):
         self.sidebar.setObjectName("Sidebar")
         self.sidebar.setIconSize(QSize(18, 18))
         self.sidebar.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        for label, _idx in self.NAV_ITEMS:
-            item = QListWidgetItem(label)
-            self.sidebar.addItem(item)
+        for _idx in range(len(self.NAV_KEYS)):
+            self.sidebar.addItem(QListWidgetItem(""))
         self.sidebar.currentRowChanged.connect(self._on_nav)
         sb_layout.addWidget(self.sidebar, stretch=1)
 
@@ -124,15 +120,15 @@ class MainWindow(QMainWindow):
         footer_layout = QVBoxLayout(footer)
         footer_layout.setContentsMargins(4, 10, 4, 0)
         footer_layout.setSpacing(4)
-        hint = QLabel("Ctrl+O انتخاب پوشه  ·  F5 شروع  ·  Esc توقف")
-        hint.setObjectName("SidebarHint")
-        hint.setWordWrap(True)
-        hint.setAlignment(ALIGN_START)
-        ver = QLabel(f"نسخه {__version__}")
-        ver.setObjectName("SidebarHint")
-        ver.setAlignment(ALIGN_START)
-        footer_layout.addWidget(hint)
-        footer_layout.addWidget(ver)
+        self.sidebar_hint = QLabel()
+        self.sidebar_hint.setObjectName("SidebarHint")
+        self.sidebar_hint.setWordWrap(True)
+        self.sidebar_hint.setAlignment(ALIGN_START)
+        self.sidebar_version = QLabel()
+        self.sidebar_version.setObjectName("SidebarHint")
+        self.sidebar_version.setAlignment(ALIGN_START)
+        footer_layout.addWidget(self.sidebar_hint)
+        footer_layout.addWidget(self.sidebar_version)
         sb_layout.addWidget(footer)
 
         layout.addWidget(sidebar_wrap)
@@ -154,6 +150,23 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(content_wrap, stretch=1)
 
+    def retranslate_ui(self) -> None:
+        ui_lang = normalize_lang(self.settings.get("ui_language", "fa"))
+        self.setWindowTitle(f"{APP_NAME} — {t('window.tagline', lang=ui_lang)}")
+        self.brand_sub.setText(t("brand.subtitle", lang=ui_lang))
+        self.sidebar_hint.setText(t("sidebar.hint", lang=ui_lang))
+        self.sidebar_version.setText(t("sidebar.version", lang=ui_lang, version=__version__))
+        current = self.sidebar.currentRow()
+        for idx, key in enumerate(self.NAV_KEYS):
+            item = self.sidebar.item(idx)
+            if item is not None:
+                item.setText(t(key, lang=ui_lang))
+        if current >= 0:
+            self.sidebar.setCurrentRow(current)
+        self.home_page.retranslate_ui()
+        self.settings_page.retranslate_ui()
+        self.about_page.retranslate_ui()
+
     def change_page(self, index: int) -> None:
         if 0 <= index < self.stack.count():
             self.sidebar.setCurrentRow(index)
@@ -169,13 +182,23 @@ class MainWindow(QMainWindow):
             self.about_page.refresh_content()
 
     def apply_preferences(self) -> None:
+        ui_lang = normalize_lang(self.settings.get("ui_language", "fa"))
+        set_ui_language(ui_lang)
         theme = self.settings.get("theme", "dark_cyan")
         font_key = self.settings.get("font_size", "medium")
         self.setStyleSheet(build_stylesheet(theme, font_key))
-        from PySide6.QtWidgets import QApplication
-
-        configure_app_typography(QApplication.instance(), font_key)
-        apply_layout_direction(self, rtl=True)
+        app = QApplication.instance()
+        configure_app_typography(app, font_key)
+        if app is not None:
+            app.setLayoutDirection(
+                Qt.LayoutDirection.RightToLeft if is_rtl() else Qt.LayoutDirection.LeftToRight
+            )
+        rtl = is_rtl()
+        apply_layout_direction(self, rtl=rtl)
+        self.home_page.apply_direction(rtl)
+        self.settings_page.apply_direction(rtl)
+        self.about_page.apply_direction(rtl)
+        self.retranslate_ui()
         if hasattr(self, "about_page"):
             self.about_page.refresh_content()
 
@@ -191,14 +214,31 @@ class MainWindow(QMainWindow):
 
     def showEvent(self, event) -> None:
         super().showEvent(event)
-        if self._geometry_restored:
-            return
-        geo = self.settings.get("window_geometry", "")
-        if geo:
-            try:
-                from PySide6.QtCore import QByteArray
+        if not self._geometry_restored:
+            geo = self.settings.get("window_geometry", "")
+            if geo:
+                try:
+                    from PySide6.QtCore import QByteArray
 
-                self.restoreGeometry(QByteArray.fromBase64(geo.encode("ascii")))
-            except Exception:
-                pass
-        self._geometry_restored = True
+                    self.restoreGeometry(QByteArray.fromBase64(geo.encode("ascii")))
+                except Exception:
+                    pass
+            self._geometry_restored = True
+
+    def ensure_language_chosen(self) -> None:
+        """Call after show() so the first-run picker is not missed."""
+        if self._language_prompt_scheduled:
+            return
+        if not self.settings.needs_language_prompt():
+            return
+        self._language_prompt_scheduled = True
+        self._prompt_first_run_language()
+
+    def _prompt_first_run_language(self) -> None:
+        if not self.settings.needs_language_prompt():
+            return
+        suggested = detect()
+        chosen = prompt_ui_language(self, suggested=suggested)
+        self.settings.confirm_ui_language(chosen)
+        self.settings_page.load_values()
+        self.apply_preferences()

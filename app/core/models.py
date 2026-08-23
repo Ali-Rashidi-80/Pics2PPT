@@ -32,8 +32,22 @@ class BuildSettings:
     enable_image_border: bool = True
     caption_from_filename: bool = True
 
+    ui_language: str = "fa"
+    slide_language: str = "fa"
+
     @classmethod
     def from_dict(cls, data: dict) -> "BuildSettings":
+        from app.i18n import resolve_slide_language
+        from app.i18n.locale_detect import normalize as normalize_lang
+
+        slide_lang = resolve_slide_language(data)
+        ui_lang = normalize_lang(str(data.get("ui_language", "fa")))
+        font_name = str(data.get("font_name", "B Nazanin"))
+        if slide_lang == "en" and font_name in ("B Nazanin", ""):
+            font_name = "Calibri"
+        elif slide_lang == "fa" and font_name in ("Calibri", "Arial", ""):
+            font_name = "B Nazanin"
+
         return cls(
             footer_text=str(data.get("footer_text", "")),
             logo_right=Path(data["logo_right"]) if data.get("logo_right") else None,
@@ -55,4 +69,6 @@ class BuildSettings:
             enable_image_shadow=bool(data.get("enable_image_shadow", True)),
             enable_image_border=bool(data.get("enable_image_border", True)),
             caption_from_filename=bool(data.get("caption_from_filename", True)),
+            ui_language=ui_lang,
+            slide_language=slide_lang,
         )

@@ -1,0 +1,82 @@
+# -*- mode: python ; coding: utf-8 -*-
+"""PyInstaller spec — portable one-file EXE for SlideReport."""
+
+from pathlib import Path
+
+block_cipher = None
+root = Path(SPECPATH)
+
+a = Analysis(
+    [str(root / "slide_report_entry.py")],
+    pathex=[str(root)],
+    binaries=[],
+    datas=[],
+    hiddenimports=[
+        "app",
+        "app.bootstrap",
+        "app.core",
+        "app.core.scanner",
+        "app.core.pptx_builder",
+        "app.core.image_processor",
+        "app.core.worker",
+        "app.core.models",
+        "app.services",
+        "app.services.settings",
+        "app.ui",
+        "app.ui.main_window",
+        "app.ui.theme",
+        "app.ui.fonts",
+        "app.ui.layout_direction",
+        "app.ui.widgets",
+        "app.ui.help_content",
+        "app.ui.drop_line_edit",
+        "app.ui.pages.home_page",
+        "app.ui.pages.settings_page",
+        "app.ui.pages.about_page",
+        "pptx",
+        "pptx.action",
+        "pptx.enum.text",
+        "pptx.oxml",
+        "lxml",
+        "lxml.etree",
+        "PIL",
+        "PIL.Image",
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=["tkinter", "matplotlib", "numpy", "PyQt5", "PyQt6"],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name="SlideReport_Portable",
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[
+        "python*.dll",
+        "Qt6*.dll",
+        "slide_report_entry.py",
+    ],
+    runtime_tmpdir=None,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=str(root / "icon.ico") if (root / "icon.ico").is_file() else None,
+)

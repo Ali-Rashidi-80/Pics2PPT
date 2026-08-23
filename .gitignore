@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.pptx
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.idea/
+.vscode/
+Output_PPTX/
+tools/upx_tmp/
+tools/upx.zip
+*.spec.bak

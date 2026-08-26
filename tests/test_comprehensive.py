@@ -207,9 +207,11 @@ class TestHelpContent(unittest.TestCase):
 
     def test_help_panel_rtl_native_widgets(self) -> None:
         from app import __version__
+        from app.i18n import set_ui_language
         from app.ui.help_panel import build_help_panel
 
-        panel = build_help_panel("dark_cyan", __version__)
+        set_ui_language("fa")
+        panel = build_help_panel("dark_cyan", __version__, lang="fa")
         self.assertEqual(panel.layoutDirection(), Qt.LayoutDirection.RightToLeft)
         headings = panel.findChildren(QLabel, options=Qt.FindChildOption.FindChildrenRecursively)
         heading_titles = [h.text() for h in headings if h.objectName() == "HelpHeading"]
@@ -406,16 +408,25 @@ class TestAboutContent(unittest.TestCase):
 
     def test_creator_visible_in_about(self) -> None:
         from PySide6.QtWidgets import QLabel
+        from app.i18n import set_ui_language, t
         from app.ui.main_window import MainWindow
 
         td = tempfile.mkdtemp(prefix="pics2ppt_about_")
         win = MainWindow()
         win.settings._path = Path(td) / "settings.json"
         win.settings._dir = Path(td)
+        win.settings._legacy_dirs = []
         win.settings.load()
+        win.settings.set("ui_language_confirmed", True)
+        win.settings.set("ui_language", "fa")
+        win.settings_page.load_values()
+        win.apply_preferences()
+        set_ui_language("fa")
+        win.about_page.refresh_content()
         win.change_page(2)
         texts = [w.text() for w in win.about_page.findChildren(QLabel)]
-        self.assertIn("سازنده: Ali Rashidi", texts)
+        self.assertIn(t("about.creator", lang="fa"), texts)
+        self.assertIn("Ali Rashidi", " ".join(texts))
         win.close()
         __import__("shutil").rmtree(td, ignore_errors=True)
 
